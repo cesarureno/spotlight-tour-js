@@ -421,3 +421,60 @@ body {
   #tour-trigger { right: 16px; bottom: 76px; }
   #toast { right: 16px; bottom: 132px; }
 }
+
+/* ── Billing toggle ────────────────────────── */
+.billing-toggle {
+  display: flex;
+  width: max-content;
+  margin: 24px auto 0;
+  padding: 4px;
+  gap: 4px;
+  background: #fff;
+  border: 1px solid var(--g200);
+  border-radius: 100px;
+}
+
+.billing-toggle button {
+  border: none;
+  background: transparent;
+  color: var(--g600);
+  font: inherit;
+  font-size: 13.5px;
+  font-weight: 600;
+  padding: 8px 18px;
+  border-radius: 100px;
+  cursor: pointer;
+  transition: background .15s, color .15s;
+}
+
+.billing-toggle button span { color: #059669; font-size: 12px; }
+.billing-toggle button[aria-pressed="true"] { background: var(--indigo); color: #fff; }
+.billing-toggle button[aria-pressed="true"] span { color: #d1fae5; }
+
+/* ── Sign-up form ──────────────────────────── */
+.signup-form {
+  display: flex;
+  justify-content: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.signup-form input {
+  width: 280px;
+  max-width: 100%;
+  padding: 14px 16px;
+  border: none;
+  border-radius: 10px;
+  font: inherit;
+  font-size: 15px;
+  color: var(--g900);
+}
+
+.signup-form input:focus { outline: 3px solid rgba(255,255,255,.5); }
+
+.signup-result {
+  min-height: 1.5em;
+  margin: 16px 0 0 !important;
+  font-weight: 600;
+  opacity: 1 !important;
+}

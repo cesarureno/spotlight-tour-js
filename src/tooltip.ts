@@ -8,6 +8,8 @@ interface TooltipConfig {
   totalSteps: number;
   labels: TourLabels;
   visualRect: { left: number; top: number; width: number; height: number };
+  /** For interactive steps: what to do. "Next" stays disabled until markActionDone(). */
+  hint?: string;
   onPrev?: () => void;
   onNext?: () => void;
   onClose: () => void;
@@ -26,7 +28,8 @@ function escapeHtml(str: string): string {
 }
 
 export function createTooltip(config: TooltipConfig): HTMLElement {
-  const { title, text, side, stepIndex, totalSteps, labels, visualRect, onPrev, onNext, onClose } = config;
+  const { title, text, side, stepIndex, totalSteps, labels, visualRect, hint, onPrev, onNext, onClose } = config;
+  const waiting = hint !== undefined;
   const isFirst = stepIndex === 0;
   const isLast = stepIndex === totalSteps - 1;
   const stepLabel = labels.step(stepIndex + 1, totalSteps);
@@ -47,13 +50,14 @@ export function createTooltip(config: TooltipConfig): HTMLElement {
     <p class="st-step-label">${escapeHtml(stepLabel)}</p>
     <h3 class="st-title">${escapeHtml(title)}</h3>
     <p class="st-text">${escapeHtml(text)}</p>
+    ${waiting ? `<p class="st-hint" aria-live="polite">${escapeHtml(hint)}</p>` : ''}
     <div class="st-footer">
       <div class="st-dots">${dotsHtml}</div>
       <div class="st-nav">
         ${!isFirst ? `<button class="st-btn st-btn-prev" type="button">${escapeHtml(labels.prev)}</button>` : ''}
         ${isLast
-          ? `<button class="st-btn st-btn-finish" type="button">${escapeHtml(labels.done)}</button>`
-          : `<button class="st-btn st-btn-next" type="button">${escapeHtml(labels.next)}</button>`
+          ? `<button class="st-btn st-btn-finish" type="button"${waiting ? ' disabled' : ''}>${escapeHtml(labels.done)}</button>`
+          : `<button class="st-btn st-btn-next" type="button"${waiting ? ' disabled' : ''}>${escapeHtml(labels.next)}</button>`
         }
       </div>
     </div>
@@ -104,6 +108,13 @@ export function createTooltip(config: TooltipConfig): HTMLElement {
         break;
     }
 
+    // Flip to the other side when the requested one doesn't fit but the other does.
+    if (side === 'below' && top + tooltipH > vh - EDGE_PAD && rT - tooltipH - GAP >= EDGE_PAD) {
+      top = rT - tooltipH - GAP;
+    } else if (side === 'above' && top < EDGE_PAD && rT + rH + GAP + tooltipH <= vh - EDGE_PAD) {
+      top = rT + rH + GAP;
+    }
+
     left = Math.max(EDGE_PAD, Math.min(vw - TOOLTIP_WIDTH - EDGE_PAD, left));
     top = Math.max(EDGE_PAD, Math.min(vh - tooltipH - EDGE_PAD, top));
 
@@ -115,4 +126,14 @@ export function createTooltip(config: TooltipConfig): HTMLElement {
   });
 
   return el;
+}
+
+/** Interactive steps: the user did it. Enables "Next"/"Done" and swaps the hint for `text`. */
+export function markActionDone(el: HTMLElement, text: string): void {
+  el.querySelectorAll<HTMLButtonElement>('.st-btn-next, .st-btn-finish').forEach(btn => { btn.disabled = false; });
+  const hint = el.querySelector<HTMLElement>('.st-hint');
+  if (hint) {
+    hint.textContent = text;
+    hint.classList.add('st-hint-done');
+  }
 }

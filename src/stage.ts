@@ -8,10 +8,18 @@
 // page and stay positioned against it.
 
 export interface Stage {
-  setScale: (scale: number) => void;
+  /** The whole page at `scale` (1 = back to normal). */
+  overview: (scale: number) => void;
+  /** The camera on one element of the real page, magnified by up to `zoom`. */
+  focus: (target: HTMLElement, zoom: number) => void;
+  /** Let the pointer reach the page (only the spotlight hole is reachable, see spotlight.ts). */
+  setPointer: (enabled: boolean) => void;
   scrollTo: (target: HTMLElement) => Promise<void>;
   restore: () => void;
 }
+
+// Room kept free under a focused element for the tooltip.
+const TOOLTIP_ROOM = 220;
 
 const DEFAULT_ROOT = '#app, #root, #__nuxt, #__next';
 const TRANSPARENT = ['rgba(0, 0, 0, 0)', 'transparent'];
@@ -42,7 +50,8 @@ export function createStage(rootOption?: string | HTMLElement): Stage {
     'z-index': '9990',
     background,
     'transform-origin': 'top center',
-    transform: 'scale(1)',
+    // Always translate + scale, so every transition interpolates between the same functions.
+    transform: 'translate(0px, 0px) scale(1)',
     transition: [
       'transform 0.55s cubic-bezier(0.4,0,0.2,1)',
       'opacity 0.45s ease',
@@ -59,25 +68,87 @@ export function createStage(rootOption?: string | HTMLElement): Stage {
 
   let restored = false;
 
+  function applyTransform(tx: number, ty: number, scale: number, extra: Record<string, string>): void {
+    // Two frames so the starting transform is painted before the transition kicks in.
+    requestAnimationFrame(() => requestAnimationFrame(() => {
+      // A late frame must not leave a transform on a body that was already restored:
+      // it would become the containing block of every position:fixed element.
+      if (restored) return;
+      setStyles(body, { transform: `translate(${tx}px, ${ty}px) scale(${scale})`, ...extra });
+    }));
+  }
+
+  // The body's transform-origin (top center of its box), in viewport coordinates.
+  function transformOrigin(): { x: number; y: number } {
+    const s = window.getComputedStyle(body);
+    return {
+      x: parseFloat(s.marginLeft) + body.offsetWidth / 2,
+      y: parseFloat(s.marginTop),
+    };
+  }
+
+  // Where the element would be on screen with no transform on the body. It undoes the
+  // transform the body has right now (read from the computed style, so it's right even
+  // mid-transition) instead of trusting the last one we set.
+  function naturalRect(el: HTMLElement): { x: number; y: number; width: number; height: number } {
+    const raw = window.getComputedStyle(body).transform;
+    const m = new DOMMatrixReadOnly(raw === 'none' ? undefined : raw);
+    const k = m.a || 1;
+    const origin = transformOrigin();
+    const r = el.getBoundingClientRect();
+    return {
+      x: origin.x + (r.left - origin.x - m.e) / k,
+      y: origin.y + (r.top - origin.y - m.f) / k,
+      width: r.width / k,
+      height: r.height / k,
+    };
+  }
+
   return {
-    setScale: scale => {
-      // Two frames so the starting transform is painted before the transition kicks in.
-      requestAnimationFrame(() => requestAnimationFrame(() => {
-        // A late frame must not leave a transform on a body that was already restored:
-        // it would become the containing block of every position:fixed element.
-        if (restored) return;
-        const zoomedOut = scale < 1;
-        setStyles(body, {
-          transform: `scale(${scale})`,
-          // "Small screen floating in space" look
-          opacity: zoomedOut ? '0.72' : '',
-          'border-radius': zoomedOut ? '12px' : '',
-          'box-shadow': zoomedOut
-            ? '0 0 0 1px rgba(255,255,255,0.07), 0 40px 100px rgba(0,0,0,0.55)'
-            : '',
-          'pointer-events': zoomedOut ? 'none' : '',
-        });
-      }));
+    overview: scale => {
+      const zoomedOut = scale < 1;
+      applyTransform(0, 0, scale, {
+        // "Small screen floating in space" look
+        opacity: zoomedOut ? '0.72' : '',
+        'border-radius': zoomedOut ? '12px' : '',
+        'box-shadow': zoomedOut
+          ? '0 0 0 1px rgba(255,255,255,0.07), 0 40px 100px rgba(0,0,0,0.55)'
+          : '',
+        'pointer-events': zoomedOut ? 'none' : '',
+      });
+    },
+
+    focus: (target, zoom) => {
+      // The pointer stays off until the spotlight's blockers are in place.
+      const look = { opacity: '', 'border-radius': '', 'box-shadow': '', 'pointer-events': 'none' };
+
+      // At real size the root's scroll already centers the element: no translate needed.
+      // Keeping the page untransformed (in effect) also keeps JS-positioned popups in place.
+      if (zoom <= 1) {
+        applyTransform(0, 0, 1, look);
+        return;
+      }
+
+      const { x, y, width, height } = naturalRect(target);
+      const vw = window.innerWidth;
+      const vh = window.innerHeight;
+
+      // As much of the requested zoom as fits, leaving room for the tooltip below.
+      const scale = Math.max(1, Math.min(zoom, (vw * 0.9) / width, (vh - TOOLTIP_ROOM) / height));
+
+      // Place the element's center at (vw / 2, centerY). With the origin at the body's top
+      // center, a point p lands on screen at  origin + scale * (p - origin) + translate.
+      const origin  = transformOrigin();
+      const centerY = Math.max((height * scale) / 2 + 16, (vh - TOOLTIP_ROOM) / 2 + 16);
+      const tx = vw / 2 - origin.x - scale * (x + width / 2 - origin.x);
+      const ty = centerY - origin.y - scale * (y + height / 2 - origin.y);
+
+      applyTransform(tx, ty, scale, look);
+    },
+
+    setPointer: enabled => {
+      if (restored) return;
+      setStyles(body, { 'pointer-events': enabled ? '' : 'none' });
     },
 
     scrollTo: target => {

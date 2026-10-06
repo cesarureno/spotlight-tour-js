@@ -19,12 +19,14 @@ Every tour goes through three phases:
 2. **Flight.** For each step, the mini-page scrolls to the element and outlines it. Then a copy of the element flies to the free strip below the mini-page and grows up to 2.2× its size (configurable).
 3. **Tooltip.** A tooltip appears next to the copy, with a title, text, progress dots, and buttons to go forward, go back, or close.
 
+[Interactive steps](#interactive-steps) work differently: instead of a copy, the camera moves onto the real element and the user has to use it to move on.
+
 ### Things that matter when you integrate it into an app
 
 - **It doesn't move your page's nodes.** It scales the `<body>` in place, so Vue, React, and other frameworks keep their DOM references. Anything your framework mounts straight into the body (dialogs, toasts, menus) shrinks with the page and stays correctly positioned.
 - **The tour's layers hang from `<html>`, next to the `<body>`.** These are the dark backdrop, the copy, and the tooltip. That keeps them out of the scaling.
 - **When it ends, everything is restored:** the styles of `<html>`, `<body>`, and the root go back to what they were. The window scroll stays where the last step left it.
-- **The copy is a snapshot of the element.** It isn't interactive and has `pointer-events: none`.
+- **The copy is a snapshot of the element.** It isn't interactive and has `pointer-events: none`. When the user should actually use the element, make the step [interactive](#interactive-steps).
 
 ## Installation
 
@@ -37,7 +39,7 @@ npm install github:cesarureno/spotlight-tour-js
 To pin a version, use a tag or a commit:
 
 ```bash
-npm install github:cesarureno/spotlight-tour-js#v0.1.0
+npm install github:cesarureno/spotlight-tour-js#v0.2.0
 ```
 
 ### Trying it locally without pushing changes
@@ -125,6 +127,67 @@ Build with `npm run build` and serve `dist/index.umd.js` next to your page. `dis
 </script>
 ```
 
+### Interactive steps
+
+Add `action` to a step and it stops being a demo of the element: the user has to use it. The camera moves from the shrunk page back to the real page, centered on the element, with the rest dimmed and unreachable. "Next" stays disabled until the user does what the step asks; then the tour moves on by itself.
+
+```js
+steps: [
+  {
+    // A real click: the app's own handler runs (here, it opens the voucher).
+    target: '[data-tour="view-voucher"]',
+    title: 'Open a voucher',
+    text: 'Click the eye icon on any row.',
+    action: {
+      until: () => document.querySelector('.p-dialog') !== null, // done once the dialog is open
+    },
+  },
+  {
+    // Typing is harmless. intercept blocks Enter, so the form can't be sent.
+    target: '#signup-email',
+    title: 'Your work email',
+    text: 'Type any address.',
+    action: { type: 'input', intercept: true, zoom: 1.4 },
+  },
+  {
+    // intercept: the click counts, but the app's handlers never run. Nothing is saved.
+    target: '#save-button',
+    title: 'Save your changes',
+    text: 'This is the button that saves. Click it.',
+    action: { type: 'click', intercept: true },
+  },
+],
+```
+
+**When is the step done?**
+
+| `type` | Done when the user… |
+|---|---|
+| `'click'` (default) | clicks the element or anything inside it. |
+| `'input'` | types in it and the field isn't empty. |
+| `'change'` | changes it (selects, checkboxes, radios). |
+
+With `until`, the event alone isn't enough: the step is done when `until()` returns `true` (it's checked every 150 ms). Use it when "done" is a result, like "the dialog is open" or "the column is visible". You can use `until` without `type`; then any interaction counts as long as the condition becomes true.
+
+**Using the app for real without saving anything.** A tour that teaches by doing must not create records or send forms. There are two layers, and you want both:
+
+1. **`intercept: true` on every step that would save or send.** The tour listens in the capture phase on `window`, which every event passes through before reaching your app, and stops it there. The click (or Enter) counts as done, but your handlers never run. Intercepting steps also block every form `submit`.
+2. **A guard in your HTTP client while the tour runs.** `intercept` only covers what the user does on that step's element. A guard catches everything else, such as a watcher that autosaves:
+
+```js
+// axios
+http.interceptors.request.use(config => {
+  if (tour.isActive && config.method !== 'get') {
+    return Promise.reject(new Error('Blocked during the onboarding tour'));
+  }
+  return config;
+});
+```
+
+Steps without `intercept` are fine for anything that only reads or changes the view: opening a detail dialog, switching a tab, filtering a table.
+
+**Real size by default.** Interactive steps show the element at its real size (`zoom: 1`). Set `zoom` above 1 to magnify it. That's fine for simple elements like inputs and buttons, but dropdowns and popovers that position themselves with JavaScript can show up out of place while the page is magnified.
+
 ## API
 
 ### `new SpotlightTour(options)`
@@ -152,6 +215,18 @@ Build with `npm run build` and serve `dist/index.umd.js` next to your page. `dis
 | `timeout` | `number` | `targetTimeout` | Max wait for this step only. |
 | `onEnter` | `() => void \| Promise<void>` | — | Runs before looking for the element. If it returns a promise, the tour waits for it. |
 | `onLeave` | `() => void \| Promise<void>` | — | Runs when leaving the step, including when the tour is closed. |
+| `action` | `StepAction` | — | Makes the step [interactive](#interactive-steps). `cloneScale` doesn't apply then. |
+
+### `StepAction`
+
+| Field | Type | Default | Description |
+|---|---|---|---|
+| `type` | `'click' \| 'input' \| 'change'` | `'click'` | What the user has to do on the element. |
+| `until` | `() => boolean` | — | The step is done once this returns `true`. Checked every 150 ms. |
+| `intercept` | `boolean` | `false` | Stop the interaction before the app sees it. For clicks, the whole click (pointer down/up included) is swallowed; for inputs, Enter is. Form submits are blocked on any intercepting step. |
+| `autoAdvance` | `boolean` | `true` | Go to the next step by itself once done. |
+| `zoom` | `number` | `1` | Magnify the page on the element. It's capped so the element fits on screen. |
+| `hint` | `string` | by `type` | The instruction under the step's text, e.g. "Switch to Yearly". |
 
 ### `TourLabels`
 
@@ -162,6 +237,10 @@ Build with `npm run build` and serve `dist/index.umd.js` next to your page. `dis
   done: string;   // 'Done'
   close: string;  // 'Close tour' — accessible label for the × button
   step: (current: number, total: number) => string; // 'Step 1 / 5'
+  clickHint: string;  // 'Click it to continue'
+  inputHint: string;  // 'Type something to continue'
+  changeHint: string; // 'Pick an option to continue'
+  actionDone: string; // 'Nice! That’s it.'
 }
 ```
 
@@ -183,11 +262,14 @@ Build with `npm run build` and serve `dist/index.umd.js` next to your page. `dis
 | `←` / `↑` | Previous step |
 | `Esc` | Close the tour |
 
+The arrows don't skip an interactive step the user hasn't done yet, and they're ignored while the user types in a field.
+
 ## Known limitations
 
 - **The copy is static.** A `<canvas>` (Chart.js charts, for example) comes out blank. Inputs show their initial value, not what the user typed.
 - **Styles that depend on the parent element.** Rules like `.sidebar .item` don't apply to the copy, because it hangs from `<html>`. CSS variables defined on `:root` do work.
 - **`position: fixed` elements inside the app root.** While the tour runs, they move with the content instead of staying fixed. `position: sticky` elements work fine.
+- **Interactive steps with `zoom` above 1.** Popups positioned with JavaScript (dropdowns, popovers) can show up out of place. Keep `zoom: 1` for steps that open one.
 - **The tooltip and outline colors** are indigo (`#6366f1`) and can't be configured yet.
 
 ## Development

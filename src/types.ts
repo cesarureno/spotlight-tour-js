@@ -9,6 +9,46 @@ export interface TourLabels {
   done: string;
   close: string;
   step: (current: number, total: number) => string;
+  /** What an interactive step asks for, by action type, unless the step sets its own `hint`. */
+  clickHint: string;
+  inputHint: string;
+  changeHint: string;
+  /** Shown once the user did what the step asked. */
+  actionDone: string;
+}
+
+export type ActionType = 'click' | 'input' | 'change';
+
+/**
+ * Makes a step interactive: instead of a flying copy, the camera moves onto the real
+ * element and the user has to use it to move on.
+ */
+export interface StepAction {
+  /**
+   * What the user has to do on the target: click it, type in it (done once the field
+   * isn't empty), or change it (selects, checkboxes). Defaults to 'click' when there's no `until`.
+   */
+  type?: ActionType;
+  /**
+   * The step is done once this returns true. It's checked every 150 ms. Use it when
+   * "done" means a result rather than an event, e.g. "the dialog is open".
+   */
+  until?: () => boolean;
+  /**
+   * Swallow the interaction before the app sees it: the click counts, but the app's
+   * handlers never run. For inputs it blocks Enter, and on any intercepting step form
+   * submits are blocked. Use it on anything that saves or sends.
+   */
+  intercept?: boolean;
+  /** Move on to the next step by itself once done. Default true. */
+  autoAdvance?: boolean;
+  /**
+   * Magnify the page on the element. Default 1 (real size). Above 1, popups that position
+   * themselves with JavaScript (dropdowns, popovers) can show up out of place.
+   */
+  zoom?: number;
+  /** Instruction under the step's text. Defaults to the label for the action type. */
+  hint?: string;
 }
 
 export interface TourStep {
@@ -22,6 +62,8 @@ export interface TourStep {
   /** Runs before looking for the target. If it returns a promise (e.g. a route change), the tour waits for it. */
   onEnter?: () => void | Promise<void>;
   onLeave?: () => void | Promise<void>;
+  /** Makes the step interactive. `cloneScale` doesn't apply then. */
+  action?: StepAction;
 }
 
 export interface TourOptions {

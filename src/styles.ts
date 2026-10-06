@@ -102,6 +102,77 @@ export const STYLES = `
   line-height: 1.55;
 }
 
+.st-hint {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+  font-weight: 600;
+  color: #4f46e5;
+  background: #eef2ff;
+  border-radius: 8px;
+  padding: 8px 12px;
+  margin: -6px 0 18px;
+}
+
+.st-hint::before {
+  content: '';
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: currentColor;
+  flex-shrink: 0;
+  animation: st-pulse 1.4s ease-in-out infinite;
+}
+
+.st-hint.st-hint-done {
+  color: #047857;
+  background: #ecfdf5;
+}
+
+.st-hint.st-hint-done::before {
+  animation: none;
+}
+
+@keyframes st-pulse {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.35; transform: scale(0.7); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .st-hint::before { animation: none; }
+}
+
+.st-btn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+  transform: none;
+}
+
+/* ── Interactive steps ───────────────────────────────────────────── */
+
+.spotlight-hole {
+  position: fixed;
+  z-index: 99990;
+  border-radius: 10px;
+  pointer-events: none;
+  box-shadow:
+    0 0 0 2.5px #6366f1,
+    0 0 0 9999px rgba(0, 0, 0, 0.6);
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.spotlight-hole.st-visible {
+  opacity: 1;
+}
+
+.spotlight-blocker {
+  position: fixed;
+  z-index: 99990;
+  background: transparent;
+}
+
 .st-footer {
   display: flex;
   align-items: center;

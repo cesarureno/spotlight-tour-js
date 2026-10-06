@@ -19,12 +19,14 @@ Cada tour pasa por tres fases:
 2. **Vuelo.** Para cada paso, la mini página se desplaza hasta el elemento y lo marca con un contorno. Después, una copia del elemento vuela a la franja libre debajo de la mini página y crece hasta 2.2 veces su tamaño (configurable).
 3. **Tooltip.** Junto a la copia aparece el tooltip con título, texto, puntos de progreso y botones para avanzar, regresar o cerrar.
 
+Los [pasos interactivos](#pasos-interactivos) funcionan distinto: en lugar de una copia, la cámara se acerca al elemento real y el usuario tiene que usarlo para avanzar.
+
 ### Detalles que importan si lo integras en una app
 
 - **No mueve los nodos de tu página.** Escala el `<body>` en su lugar, así que Vue, React y los demás conservan sus referencias al DOM. Lo que tu framework monta directo en el body (diálogos, toasts, menús) se encoge junto con la página y queda bien posicionado.
 - **Las capas del tour cuelgan de `<html>`, junto al `<body>`.** Son el fondo oscuro, la copia y el tooltip. Así no heredan el escalado.
 - **Al terminar restaura todo:** los estilos de `<html>`, `<body>` y la raíz quedan como estaban. El scroll de la ventana queda donde terminó el último paso.
-- **La copia es una foto del elemento.** No es interactiva y lleva `pointer-events: none`.
+- **La copia es una foto del elemento.** No es interactiva y lleva `pointer-events: none`. Si el usuario debe usar el elemento de verdad, haz el paso [interactivo](#pasos-interactivos).
 
 ## Instalación
 
@@ -37,7 +39,7 @@ npm install github:cesarureno/spotlight-tour-js
 Para fijar una versión, usa un tag o un commit:
 
 ```bash
-npm install github:cesarureno/spotlight-tour-js#v0.1.0
+npm install github:cesarureno/spotlight-tour-js#v0.2.0
 ```
 
 ### Probarla localmente sin subir cambios
@@ -125,6 +127,67 @@ Compila con `npm run build` y sirve `dist/index.umd.js` junto a tu página. `dis
 </script>
 ```
 
+### Pasos interactivos
+
+Agrega `action` a un paso y deja de ser una demostración del elemento: el usuario tiene que usarlo. La cámara pasa de la página encogida a la página real, centrada en el elemento, con el resto oscurecido y sin poder tocarse. «Siguiente» queda deshabilitado hasta que el usuario hace lo que pide el paso; luego el tour avanza solo.
+
+```js
+steps: [
+  {
+    // Un click real: se ejecuta el handler de la app (aquí, abre el vale).
+    target: '[data-tour="ver-vale"]',
+    title: 'Abre un vale',
+    text: 'Dale click al ojo de cualquier fila.',
+    action: {
+      until: () => document.querySelector('.p-dialog') !== null, // listo cuando el modal está abierto
+    },
+  },
+  {
+    // Escribir no hace daño. intercept bloquea Enter, así que el formulario no se envía.
+    target: '#signup-email',
+    title: 'Tu correo de trabajo',
+    text: 'Escribe cualquier dirección.',
+    action: { type: 'input', intercept: true, zoom: 1.4 },
+  },
+  {
+    // intercept: el click cuenta, pero los handlers de la app nunca se ejecutan. No se guarda nada.
+    target: '#boton-guardar',
+    title: 'Guarda tus cambios',
+    text: 'Este es el botón que guarda. Dale click.',
+    action: { type: 'click', intercept: true },
+  },
+],
+```
+
+**¿Cuándo se cumple el paso?**
+
+| `type` | Se cumple cuando el usuario… |
+|---|---|
+| `'click'` (por defecto) | hace click en el elemento o en algo dentro de él. |
+| `'input'` | escribe en él y el campo no queda vacío. |
+| `'change'` | lo cambia (selects, checkboxes, radios). |
+
+Con `until`, el evento solo no basta: el paso se cumple cuando `until()` devuelve `true` (se revisa cada 150 ms). Úsalo cuando «listo» es un resultado, como «el modal está abierto» o «la columna se ve». Puedes usar `until` sin `type`; entonces cualquier interacción sirve mientras la condición se vuelva verdadera.
+
+**Usar la app de verdad sin guardar nada.** Un tour que enseña haciendo no debe crear registros ni enviar formularios. Hay dos capas y conviene usar las dos:
+
+1. **`intercept: true` en cada paso que guardaría o enviaría algo.** El tour escucha en la fase de captura de `window`, por donde pasa todo evento antes de llegar a tu app, y lo detiene ahí. El click (o el Enter) cuenta como hecho, pero tus handlers nunca se ejecutan. Los pasos con `intercept` también bloquean cualquier `submit` de formulario.
+2. **Un candado en tu cliente HTTP mientras el tour corre.** `intercept` solo cubre lo que el usuario hace sobre el elemento de ese paso. El candado atrapa todo lo demás, como un watcher que guarda solo:
+
+```js
+// axios
+http.interceptors.request.use(config => {
+  if (tour.isActive && config.method !== 'get') {
+    return Promise.reject(new Error('Bloqueado durante el recorrido'));
+  }
+  return config;
+});
+```
+
+Los pasos sin `intercept` sirven para todo lo que solo lee o cambia la vista: abrir un modal de detalle, cambiar de pestaña, filtrar una tabla.
+
+**Tamaño real por defecto.** Los pasos interactivos muestran el elemento a su tamaño real (`zoom: 1`). Con `zoom` mayor a 1 se agranda. Va bien con elementos simples como inputs y botones, pero los dropdowns y popovers que se posicionan con JavaScript pueden aparecer fuera de lugar mientras la página está agrandada.
+
 ## API
 
 ### `new SpotlightTour(options)`
@@ -152,6 +215,18 @@ Compila con `npm run build` y sirve `dist/index.umd.js` junto a tu página. `dis
 | `timeout` | `number` | `targetTimeout` | Espera máxima solo para este paso. |
 | `onEnter` | `() => void \| Promise<void>` | — | Corre antes de buscar el elemento. Si devuelve una promesa, el tour la espera. |
 | `onLeave` | `() => void \| Promise<void>` | — | Corre al salir del paso, también cuando el tour se cierra. |
+| `action` | `StepAction` | — | Hace el paso [interactivo](#pasos-interactivos). Entonces `cloneScale` no aplica. |
+
+### `StepAction`
+
+| Campo | Tipo | Por defecto | Descripción |
+|---|---|---|---|
+| `type` | `'click' \| 'input' \| 'change'` | `'click'` | Qué tiene que hacer el usuario con el elemento. |
+| `until` | `() => boolean` | — | El paso se cumple cuando devuelve `true`. Se revisa cada 150 ms. |
+| `intercept` | `boolean` | `false` | Detiene la interacción antes de que la app la vea. En clicks se traga el click completo (incluidos pointer down/up); en inputs, el Enter. En cualquier paso con `intercept` se bloquean los submits de formulario. |
+| `autoAdvance` | `boolean` | `true` | Pasa solo al siguiente paso cuando se cumple. |
+| `zoom` | `number` | `1` | Agranda la página sobre el elemento. Se limita para que el elemento quepa en pantalla. |
+| `hint` | `string` | según `type` | La instrucción bajo el texto del paso, por ejemplo «Cambia a anual». |
 
 ### `TourLabels`
 
@@ -162,6 +237,10 @@ Compila con `npm run build` y sirve `dist/index.umd.js` junto a tu página. `dis
   done: string;   // 'Done'
   close: string;  // 'Close tour' — etiqueta accesible del botón ×
   step: (current: number, total: number) => string; // 'Step 1 / 5'
+  clickHint: string;  // 'Click it to continue'
+  inputHint: string;  // 'Type something to continue'
+  changeHint: string; // 'Pick an option to continue'
+  actionDone: string; // 'Nice! That’s it.'
 }
 ```
 
@@ -183,11 +262,14 @@ Compila con `npm run build` y sirve `dist/index.umd.js` junto a tu página. `dis
 | `←` / `↑` | Paso anterior |
 | `Esc` | Cerrar el tour |
 
+Las flechas no saltan un paso interactivo que el usuario no ha cumplido, y se ignoran mientras escribe en un campo.
+
 ## Limitaciones conocidas
 
 - **La copia es estática.** Un `<canvas>` (por ejemplo, gráficas de Chart.js) sale en blanco. Los inputs muestran su valor inicial, no lo que el usuario escribió.
 - **Estilos que dependen del elemento padre.** Reglas como `.sidebar .item` no se aplican en la copia, porque esta cuelga de `<html>`. Las variables CSS definidas en `:root` sí funcionan.
 - **Elementos `position: fixed` dentro de la raíz de la app.** Mientras el tour corre, se mueven junto con el contenido en lugar de quedarse fijos. Los `position: sticky` sí funcionan.
+- **Pasos interactivos con `zoom` mayor a 1.** Los popups que se posicionan con JavaScript (dropdowns, popovers) pueden aparecer fuera de lugar. Deja `zoom: 1` en los pasos que abren uno.
 - **Los colores del tooltip y del contorno** son índigo (`#6366f1`) y por ahora no se pueden configurar.
 
 ## Desarrollo
