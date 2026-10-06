@@ -39,7 +39,7 @@ npm install github:cesarureno/spotlight-tour-js
 Para fijar una versión, usa un tag o un commit:
 
 ```bash
-npm install github:cesarureno/spotlight-tour-js#v0.4.0
+npm install github:cesarureno/spotlight-tour-js#v0.4.1
 ```
 
 ### Probarla localmente sin subir cambios

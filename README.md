@@ -39,7 +39,7 @@ npm install github:cesarureno/spotlight-tour-js
 To pin a version, use a tag or a commit:
 
 ```bash
-npm install github:cesarureno/spotlight-tour-js#v0.4.0
+npm install github:cesarureno/spotlight-tour-js#v0.4.1
 ```
 
 ### Trying it locally without pushing changes
