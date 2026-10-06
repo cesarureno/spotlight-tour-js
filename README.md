@@ -1,5 +1,7 @@
 # spotlight-tour
 
+[![npm](https://img.shields.io/npm/v/spotlight-tour)](https://www.npmjs.com/package/spotlight-tour)
+
 **English** · [Español](README.es.md)
 
 Onboarding tours with a cinematic effect. When the tour starts, the page pulls back as if the camera were moving away. On each step, the element you want to show flies out of the page and grows in the middle of the screen, with a tooltip to move through the tour.
@@ -30,17 +32,11 @@ Every tour goes through three phases:
 
 ## Installation
 
-It isn't published to npm yet. Install it from GitHub: npm downloads it and builds it automatically thanks to the `prepare` script.
-
 ```bash
-npm install github:cesarureno/spotlight-tour-js
+npm install spotlight-tour
 ```
 
-To pin a version, use a tag or a commit:
-
-```bash
-npm install github:cesarureno/spotlight-tour-js#v0.4.2
-```
+The package is [`spotlight-tour` on npm](https://www.npmjs.com/package/spotlight-tour). The repository is called `spotlight-tour-js`, but the package isn't.
 
 ### Trying it locally without pushing changes
 
@@ -116,10 +112,10 @@ Create it once, outside your components, so `start()` doesn't get called twice.
 
 ### From a `<script>` tag
 
-Build with `npm run build` and serve `dist/index.umd.js` next to your page. `dist/` isn't committed to the repository.
+Load the UMD build from a CDN. Pin the minor version (`@0.4` gets the latest `0.4.x`) so a breaking release doesn’t reach your page unannounced.
 
 ```html
-<script src="index.umd.js"></script>
+<script src="https://unpkg.com/spotlight-tour@0.4/dist/index.umd.js"></script>
 <script>
   // The UMD build exposes the class on .default
   const tour = new SpotlightTour.default({ steps: [/* ... */] });
@@ -311,11 +307,24 @@ npm install
 npm run build   # builds dist/ (ESM, CJS, UMD, and types)
 npm run dev     # rebuilds on save
 npm run demo    # serves the project at http://localhost:3000
+npm run lint
+npm run typecheck
+npm test
 ```
 
 With `npm run demo` running, open `http://localhost:3000/demo/`. `index.html` is the docs page, with its own tour and a card to try each kind of step. `app.html` is a sample app; everything the library adds is at the end of the file.
 
 Every push to `main` publishes the demo to GitHub Pages (`.github/workflows/pages.yml`).
+
+Changes go through a pull request against `main`. CI (`.github/workflows/ci.yml`) runs the lint, the type check, the tests, and a check of the package as npm would ship it.
+
+To release, bump the version in a pull request (`npm version patch --no-git-tag-version`). Once it's merged, tag `main` and push the tag:
+
+```bash
+git tag v0.4.4 && git push origin v0.4.4
+```
+
+The tag runs `.github/workflows/publish.yml`, which publishes to npm.
 
 Structure:
 
