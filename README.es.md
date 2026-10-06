@@ -339,6 +339,12 @@ src/
 └── types.ts     tipos públicos
 ```
 
+## ¿Te gusta?
+
+Si spotlight-tour te fue útil, o simplemente te gusta, [regálale una estrella en GitHub](https://github.com/cesarureno/spotlight-tour-js). Así otros desarrolladores la encuentran.
+
+[![Un tour de spotlight-tour sobre este repositorio: la página se aleja, el botón Star sale volando y crece, luego la cámara entra al botón y un click lo deja en Starred](https://raw.githubusercontent.com/cesarureno/spotlight-tour-js/main/.github/assets/star.gif)](https://github.com/cesarureno/spotlight-tour-js)
+
 ## Licencia
 
 MIT
