@@ -245,7 +245,7 @@ export default class SpotlightTour {
     const side = step.tooltipSide ?? 'below';
     // The tooltip follows the hole when using the element changes its size (a panel
     // that opens, a field that grows) so it never ends up covering it.
-    this.spotlight = createSpotlight(target, () => {
+    this.spotlight = createSpotlight(target, step.include, () => {
       if (this.tooltip) positionTooltip(this.tooltip, this.spotlight!.rect(), side);
     });
     // Only an interactive step lets the pointer reach the page.
@@ -281,7 +281,7 @@ export default class SpotlightTour {
       if (action.autoAdvance !== false && index < last) {
         this.stepTimer = setTimeout(() => this.goTo(index + 1), 900);
       }
-    });
+    }, step.include);
   }
 
   private hintFor(type: ActionType | null): string {

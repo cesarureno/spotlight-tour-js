@@ -39,7 +39,7 @@ npm install github:cesarureno/spotlight-tour-js
 To pin a version, use a tag or a commit:
 
 ```bash
-npm install github:cesarureno/spotlight-tour-js#v0.3.0
+npm install github:cesarureno/spotlight-tour-js#v0.4.0
 ```
 
 ### Trying it locally without pushing changes
@@ -199,6 +199,20 @@ http.interceptors.request.use(config => {
 
 Steps without `intercept` are fine for anything that only reads or changes the view: opening a detail dialog, switching a tab, filtering a table.
 
+<a id="popups"></a>**Popups.** A select's option list or an actions menu is usually rendered somewhere else in the DOM, outside the target. Name it in `include` and, while it's visible, the spotlight covers it too and its clicks count as the target's:
+
+```js
+{
+  target: '[data-tour="row-actions"]',
+  title: 'Open the record',
+  text: 'Open the menu and pick "View".',
+  include: '.p-menu-overlay', // PrimeVue's popup menu
+  action: { until: () => document.querySelector('.p-dialog') !== null },
+}
+```
+
+**Scrolling containers.** If the element is inside something that scrolls on its own, like the body of a long dialog, the tour scrolls it into view first.
+
 **Real size by default.** Interactive steps show the element at its real size (`zoom: 1`). Set `zoom` above 1 to magnify it. That's fine for simple elements like inputs and buttons, but dropdowns and popovers that position themselves with JavaScript can show up out of place while the page is magnified.
 
 ## API
@@ -230,6 +244,7 @@ Steps without `intercept` are fine for anything that only reads or changes the v
 | `onLeave` | `() => void \| Promise<void>` | — | Runs when leaving the step, including when the tour is closed. |
 | `mode` | `'copy' \| 'real'` | `'copy'` | `'real'` moves the camera onto the element in place instead of flying a copy. See [Real elements](#real-elements). |
 | `zoom` | `number` | `1` | For `mode: 'real'`: magnify the page on the element. |
+| `include` | `string` | — | Selector for elements that belong to the step besides the target while they're visible, like the popup it opens. See [Popups](#popups). |
 | `action` | `StepAction` | — | Makes the step [interactive](#interactive-steps). `cloneScale` doesn't apply then. |
 
 ### `StepAction`

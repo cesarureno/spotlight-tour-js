@@ -1,4 +1,5 @@
 import type { ActionType, StepAction } from './types';
+import { visibleIncluded } from './spotlight';
 
 // Pointer events that make up a click. With `intercept`, all of them are swallowed:
 // some components act on pointerdown/mousedown, not only on click.
@@ -16,7 +17,12 @@ export function actionType(action: StepAction): ActionType | null {
  * see it before any of the app's handlers, and with `intercept` they stop it there,
  * so the app's handlers never run.
  */
-export function watchAction(target: HTMLElement, action: StepAction, onDone: () => void): () => void {
+export function watchAction(
+  target: HTMLElement,
+  action: StepAction,
+  onDone: () => void,
+  include?: string,
+): () => void {
   const type = actionType(action);
   const listeners: [string, EventListener][] = [];
   let done = false;
@@ -26,7 +32,12 @@ export function watchAction(target: HTMLElement, action: StepAction, onDone: () 
     listeners.push([eventType, handler]);
   };
 
-  const inside = (e: Event): boolean => e.target instanceof Node && target.contains(e.target);
+  // The target, or a popup it opened (see `TourStep.include`).
+  const inside = (e: Event): boolean => {
+    if (!(e.target instanceof Node)) return false;
+    const node = e.target;
+    return target.contains(node) || visibleIncluded(include).some(el => el.contains(node));
+  };
 
   const block = (e: Event): void => {
     e.preventDefault();

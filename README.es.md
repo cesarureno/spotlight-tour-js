@@ -39,7 +39,7 @@ npm install github:cesarureno/spotlight-tour-js
 Para fijar una versión, usa un tag o un commit:
 
 ```bash
-npm install github:cesarureno/spotlight-tour-js#v0.3.0
+npm install github:cesarureno/spotlight-tour-js#v0.4.0
 ```
 
 ### Probarla localmente sin subir cambios
@@ -199,6 +199,20 @@ http.interceptors.request.use(config => {
 
 Los pasos sin `intercept` sirven para todo lo que solo lee o cambia la vista: abrir un modal de detalle, cambiar de pestaña, filtrar una tabla.
 
+<a id="popups"></a>**Popups.** La lista de opciones de un select o un menú de acciones suele dibujarse en otra parte del DOM, fuera del target. Nómbralo en `include` y, mientras se vea, el hueco lo cubre también y sus clicks cuentan como del target:
+
+```js
+{
+  target: '[data-tour="acciones-fila"]',
+  title: 'Abre el registro',
+  text: 'Abre el menú y elige «Ver».',
+  include: '.p-menu-overlay', // el menú emergente de PrimeVue
+  action: { until: () => document.querySelector('.p-dialog') !== null },
+}
+```
+
+**Contenedores con scroll.** Si el elemento está dentro de algo que se desplaza por su cuenta, como el cuerpo de un modal largo, el tour lo trae a la vista primero.
+
 **Tamaño real por defecto.** Los pasos interactivos muestran el elemento a su tamaño real (`zoom: 1`). Con `zoom` mayor a 1 se agranda. Va bien con elementos simples como inputs y botones, pero los dropdowns y popovers que se posicionan con JavaScript pueden aparecer fuera de lugar mientras la página está agrandada.
 
 ## API
@@ -230,6 +244,7 @@ Los pasos sin `intercept` sirven para todo lo que solo lee o cambia la vista: ab
 | `onLeave` | `() => void \| Promise<void>` | — | Corre al salir del paso, también cuando el tour se cierra. |
 | `mode` | `'copy' \| 'real'` | `'copy'` | `'real'` acerca la cámara al elemento en su lugar en vez de hacer volar una copia. Ver [Elementos reales](#elementos-reales). |
 | `zoom` | `number` | `1` | Con `mode: 'real'`: agranda la página sobre el elemento. |
+| `include` | `string` | — | Selector de elementos que pertenecen al paso además del target mientras se ven, como el popup que abre. Ver [Popups](#popups). |
 | `action` | `StepAction` | — | Hace el paso [interactivo](#pasos-interactivos). Entonces `cloneScale` no aplica. |
 
 ### `StepAction`

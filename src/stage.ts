@@ -152,6 +152,10 @@ export function createStage(rootOption?: string | HTMLElement): Stage {
     },
 
     scrollTo: target => {
+      // A modal body or a scrolling panel between the target and the root: bring the
+      // target into view inside it first. The root, below, is scrolled smoothly.
+      revealInScrollParents(target, root!);
+
       // Targets outside the root (e.g. inside a dialog teleported to the body) don't scroll with it.
       if (!root!.contains(target)) return Promise.resolve();
 
@@ -245,4 +249,21 @@ function smoothScrollTo(el: HTMLElement, targetTop: number, duration: number): P
 
     requestAnimationFrame(tick);
   });
+}
+
+// Scrolls every scrolling ancestor of `el` (up to `stop`, or the body) so `el` sits in
+// the middle of it. Measures with rects, dividing out the body's current scale.
+function revealInScrollParents(el: HTMLElement, stop: HTMLElement): void {
+  let parent = el.parentElement;
+  while (parent && parent !== stop && parent !== document.body) {
+    const style = window.getComputedStyle(parent);
+    if (/(auto|scroll)/.test(style.overflowY) && parent.scrollHeight > parent.clientHeight + 1) {
+      const box   = parent.getBoundingClientRect();
+      const scale = box.height / parent.offsetHeight || 1;
+      const r     = el.getBoundingClientRect();
+      const offset = (r.top - box.top) / scale + (r.height / scale) / 2;
+      parent.scrollTop += offset - parent.clientHeight / 2;
+    }
+    parent = parent.parentElement;
+  }
 }

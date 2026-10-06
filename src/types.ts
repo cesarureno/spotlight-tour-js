@@ -71,6 +71,13 @@ export interface TourStep {
   mode?: 'copy' | 'real';
   /** For real steps: magnify the page on the element. Default 1. Same caveats as `StepAction.zoom`. */
   zoom?: number;
+  /**
+   * For real and interactive steps: a selector for elements that belong to the step besides
+   * the target, while they're visible. Typically the popup the target opens (a select's
+   * option list, a menu), which libraries render elsewhere in the DOM. The spotlight
+   * covers them too, and in interactive steps they take clicks and count as the target.
+   */
+  include?: string;
   /** Makes the step interactive. `cloneScale` doesn't apply then. */
   action?: StepAction;
 }

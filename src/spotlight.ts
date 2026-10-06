@@ -13,7 +13,7 @@ export interface SpotlightHandle {
 const PADDING = 8;
 
 /** `onResize` runs when the hole changes size or place, e.g. so the tooltip can follow it. */
-export function createSpotlight(target: HTMLElement, onResize?: () => void): SpotlightHandle {
+export function createSpotlight(target: HTMLElement, include?: string, onResize?: () => void): SpotlightHandle {
   const html = document.documentElement;
 
   const hole = document.createElement('div');
@@ -35,7 +35,7 @@ export function createSpotlight(target: HTMLElement, onResize?: () => void): Spo
   const update = (): void => {
     // A target that left the DOM (e.g. a button that closes its own panel) keeps its last hole.
     if (target.isConnected) {
-      const r = target.getBoundingClientRect();
+      const r = boundsOf([target, ...visibleIncluded(include)]);
       const next = {
         left: r.left - PADDING,
         top: r.top - PADDING,
@@ -78,4 +78,19 @@ function place(el: HTMLElement, left: number, top: number, width: number, height
   el.style.top = `${top}px`;
   el.style.width = `${width}px`;
   el.style.height = `${height}px`;
+}
+
+// The elements matched by `include` that are on screen right now.
+export function visibleIncluded(include?: string): HTMLElement[] {
+  if (!include) return [];
+  return Array.from(document.querySelectorAll<HTMLElement>(include)).filter(el => el.getClientRects().length > 0);
+}
+
+function boundsOf(elements: HTMLElement[]): { left: number; top: number; width: number; height: number } {
+  const rects = elements.map(el => el.getBoundingClientRect());
+  const left = Math.min(...rects.map(r => r.left));
+  const top = Math.min(...rects.map(r => r.top));
+  const right = Math.max(...rects.map(r => r.right));
+  const bottom = Math.max(...rects.map(r => r.bottom));
+  return { left, top, width: right - left, height: bottom - top };
 }
