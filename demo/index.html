@@ -405,8 +405,9 @@
     <!-- ── Install ──────────────────────────────── -->
     <section id="install">
       <h2>Install</h2>
-      <p class="section-lead">Not on npm yet. npm downloads it from GitHub and builds it on install.</p>
-      <pre id="install-cmd"><code>npm install github:cesarureno/spotlight-tour-js</code></pre>
+      <p class="section-lead">From npm, or from a CDN with a <code>&lt;script&gt;</code> tag.</p>
+      <pre id="install-cmd"><code>npm install spotlight-tour</code></pre>
+      <pre><code>&lt;script src="https://unpkg.com/spotlight-tour@0.4/dist/index.umd.js"&gt;&lt;/script&gt;</code></pre>
     </section>
 
     <!-- ── Usage ────────────────────────────────── -->
@@ -436,6 +437,7 @@ tour.start();</code></pre>
     </section>
 
     <footer>
+      <a href="https://www.npmjs.com/package/spotlight-tour">npm package</a>
       <a href="https://github.com/cesarureno/spotlight-tour-js">GitHub repository</a>
       <a href="https://github.com/cesarureno/spotlight-tour-js#readme">Full docs (README)</a>
       <a href="https://github.com/cesarureno/spotlight-tour-js/blob/main/README.es.md">Documentación en español</a>
@@ -567,7 +569,7 @@ tour.start();</code></pre>
       {
         target: '#install-cmd',
         title: 'Install it',
-        text: 'One command. npm builds it from GitHub.',
+        text: 'One command, straight from npm.',
         cloneScale: 1.6,
       },
       {
