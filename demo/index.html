@@ -1,0 +1,605 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Spotlight Tour — Demo</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --indigo:      #6366f1;
+      --indigo-dark: #4f46e5;
+      --purple:      #8b5cf6;
+      --g50:  #f9fafb;
+      --g100: #f3f4f6;
+      --g200: #e5e7eb;
+      --g300: #d1d5db;
+      --g600: #4b5563;
+      --g700: #374151;
+      --g900: #111827;
+    }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: #fff;
+      color: var(--g900);
+      line-height: 1.5;
+    }
+
+    /* ── Nav ───────────────────────────────────── */
+    #main-nav {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 48px;
+      height: 64px;
+      border-bottom: 1px solid var(--g200);
+      background: rgba(255,255,255,0.92);
+      backdrop-filter: blur(10px);
+      position: sticky;
+      top: 0;
+      z-index: 10;
+    }
+
+    .nav-logo {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-weight: 700;
+      font-size: 17px;
+      color: var(--g900);
+      text-decoration: none;
+      letter-spacing: -0.01em;
+    }
+
+    .nav-logo-mark {
+      width: 32px;
+      height: 32px;
+      background: linear-gradient(135deg, var(--indigo), var(--purple));
+      border-radius: 9px;
+      display: grid;
+      place-items: center;
+      color: #fff;
+      font-size: 15px;
+      font-weight: 800;
+      flex-shrink: 0;
+    }
+
+    .nav-links {
+      display: flex;
+      gap: 26px;
+      list-style: none;
+    }
+
+    .nav-links a {
+      font-size: 14px;
+      font-weight: 500;
+      color: var(--g600);
+      text-decoration: none;
+      transition: color .15s;
+    }
+    .nav-links a:hover { color: var(--g900); }
+
+    .nav-ctas { display: flex; gap: 10px; align-items: center; }
+
+    /* ── Buttons ───────────────────────────────── */
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+      padding: 9px 20px;
+      border-radius: 8px;
+      border: none;
+      cursor: pointer;
+      font-family: inherit;
+      font-size: 14px;
+      font-weight: 600;
+      transition: all .15s;
+      line-height: 1;
+      white-space: nowrap;
+    }
+
+    .btn-primary { background: var(--indigo); color: #fff; }
+    .btn-primary:hover { background: var(--indigo-dark); transform: translateY(-1px); }
+
+    .btn-ghost {
+      background: transparent;
+      color: var(--g700);
+      border: 1.5px solid var(--g200);
+    }
+    .btn-ghost:hover { background: var(--g50); }
+
+    .btn-lg { padding: 14px 28px; font-size: 15px; border-radius: 10px; }
+
+    .btn-white { background: #fff; color: var(--indigo); }
+    .btn-white:hover { background: #f5f3ff; transform: translateY(-1px); }
+
+    /* ── Hero ──────────────────────────────────── */
+    #hero {
+      max-width: 780px;
+      margin: 0 auto;
+      padding: 96px 32px 72px;
+      text-align: center;
+    }
+
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: #ede9fe;
+      color: var(--indigo-dark);
+      font-size: 11.5px;
+      font-weight: 600;
+      padding: 4px 12px;
+      border-radius: 100px;
+      margin-bottom: 24px;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+    }
+
+    .hero-h1 {
+      font-size: 58px;
+      font-weight: 800;
+      line-height: 1.1;
+      letter-spacing: -0.025em;
+      margin-bottom: 22px;
+    }
+
+    .hero-h1 .gradient {
+      background: linear-gradient(135deg, var(--indigo) 0%, var(--purple) 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .hero-sub {
+      font-size: 18px;
+      color: var(--g600);
+      max-width: 520px;
+      margin: 0 auto 36px;
+      line-height: 1.65;
+    }
+
+    .hero-actions {
+      display: flex;
+      gap: 12px;
+      justify-content: center;
+      flex-wrap: wrap;
+    }
+
+    .hero-stats {
+      display: flex;
+      gap: 40px;
+      justify-content: center;
+      margin-top: 56px;
+      padding-top: 48px;
+      border-top: 1px solid var(--g200);
+    }
+
+    .stat-num {
+      font-size: 28px;
+      font-weight: 800;
+      letter-spacing: -0.02em;
+      color: var(--g900);
+    }
+
+    .stat-label {
+      font-size: 13px;
+      color: var(--g600);
+      margin-top: 2px;
+    }
+
+    /* ── Features ──────────────────────────────── */
+    #features {
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 72px 48px;
+    }
+
+    .section-eyebrow {
+      text-align: center;
+      font-size: 12px;
+      font-weight: 700;
+      color: var(--indigo);
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      margin-bottom: 10px;
+    }
+
+    .section-h2 {
+      text-align: center;
+      font-size: 38px;
+      font-weight: 700;
+      letter-spacing: -0.015em;
+      margin-bottom: 48px;
+    }
+
+    .features-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 20px;
+    }
+
+    .card {
+      background: var(--g50);
+      border: 1px solid var(--g200);
+      border-radius: 16px;
+      padding: 28px;
+      transition: box-shadow .2s, border-color .2s, transform .2s;
+    }
+    .card:hover {
+      box-shadow: 0 8px 32px rgba(0,0,0,.07);
+      border-color: var(--g300);
+      transform: translateY(-2px);
+    }
+
+    .card-icon {
+      width: 46px;
+      height: 46px;
+      border-radius: 11px;
+      display: grid;
+      place-items: center;
+      font-size: 22px;
+      margin-bottom: 16px;
+      flex-shrink: 0;
+    }
+
+    .card h3 { font-size: 15.5px; font-weight: 600; margin-bottom: 8px; }
+    .card p  { font-size: 13.5px; color: var(--g600); line-height: 1.6; }
+
+    /* ── Pricing strip ─────────────────────────── */
+    #pricing {
+      background: var(--g50);
+      border-top: 1px solid var(--g200);
+      border-bottom: 1px solid var(--g200);
+      padding: 72px 48px;
+    }
+
+    .pricing-grid {
+      max-width: 900px;
+      margin: 48px auto 0;
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr;
+      gap: 20px;
+    }
+
+    .pricing-card {
+      background: #fff;
+      border: 1.5px solid var(--g200);
+      border-radius: 16px;
+      padding: 28px;
+      position: relative;
+    }
+
+    .pricing-card.featured {
+      border-color: var(--indigo);
+      box-shadow: 0 0 0 3px rgba(99,102,241,.12);
+    }
+
+    .pricing-badge {
+      position: absolute;
+      top: -11px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: var(--indigo);
+      color: #fff;
+      font-size: 11px;
+      font-weight: 700;
+      padding: 3px 12px;
+      border-radius: 100px;
+      letter-spacing: 0.04em;
+    }
+
+    .pricing-plan { font-size: 13px; font-weight: 600; color: var(--g600); margin-bottom: 8px; }
+    .pricing-price { font-size: 36px; font-weight: 800; letter-spacing: -0.02em; }
+    .pricing-price sup { font-size: 18px; font-weight: 600; vertical-align: top; margin-top: 6px; display: inline-block; }
+    .pricing-period { font-size: 13px; color: var(--g600); margin-bottom: 20px; }
+    .pricing-features { list-style: none; font-size: 13.5px; color: var(--g700); display: flex; flex-direction: column; gap: 9px; margin-bottom: 24px; }
+    .pricing-features li::before { content: '✓ '; color: var(--indigo); font-weight: 700; }
+
+    /* ── CTA ───────────────────────────────────── */
+    #cta-section {
+      background: linear-gradient(135deg, var(--indigo) 0%, var(--purple) 100%);
+      margin: 64px 48px;
+      border-radius: 24px;
+      padding: 72px 48px;
+      text-align: center;
+      color: #fff;
+    }
+
+    #cta-section h2 {
+      font-size: 40px;
+      font-weight: 700;
+      letter-spacing: -0.02em;
+      margin-bottom: 14px;
+    }
+
+    #cta-section p {
+      font-size: 17px;
+      opacity: .82;
+      margin-bottom: 36px;
+    }
+
+    /* ── Tour trigger ──────────────────────────── */
+    #tour-trigger {
+      position: fixed;
+      bottom: 28px;
+      right: 28px;
+      z-index: 1000;
+      background: var(--indigo);
+      color: #fff;
+      border: none;
+      border-radius: 100px;
+      padding: 13px 22px;
+      font-family: inherit;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 9px;
+      box-shadow: 0 6px 24px rgba(99,102,241,.45);
+      transition: all .2s;
+      letter-spacing: -0.01em;
+    }
+    #tour-trigger:hover {
+      background: var(--indigo-dark);
+      transform: translateY(-2px);
+      box-shadow: 0 10px 32px rgba(99,102,241,.55);
+    }
+    #tour-trigger:active { transform: translateY(0); }
+
+    .tour-dot {
+      width: 8px;
+      height: 8px;
+      background: #a5f3fc;
+      border-radius: 50%;
+      animation: blink 1.8s ease-in-out infinite;
+    }
+    @keyframes blink {
+      0%,100% { opacity:1; transform:scale(1); }
+      50%      { opacity:.4; transform:scale(.65); }
+    }
+
+    /* ── Toast ─────────────────────────────────── */
+    #toast {
+      position: fixed;
+      bottom: 88px;
+      right: 28px;
+      z-index: 10001;
+      background: #111827;
+      color: #fff;
+      font-size: 13.5px;
+      font-weight: 500;
+      padding: 10px 18px;
+      border-radius: 10px;
+      box-shadow: 0 4px 20px rgba(0,0,0,.25);
+      opacity: 0;
+      transform: translateY(6px);
+      transition: opacity .25s, transform .25s;
+      pointer-events: none;
+    }
+    #toast.show { opacity: 1; transform: translateY(0); }
+  </style>
+</head>
+<body>
+
+  <!-- ── Navigation ──────────────────────────── -->
+  <nav id="main-nav">
+    <a href="#" class="nav-logo">
+      <div class="nav-logo-mark">A</div>
+      Acme Cloud
+    </a>
+    <ul class="nav-links">
+      <li><a href="#">Producto</a></li>
+      <li><a href="#features">Features</a></li>
+      <li><a href="#pricing">Precios</a></li>
+      <li><a href="#">Docs</a></li>
+    </ul>
+    <div class="nav-ctas">
+      <button class="btn btn-ghost">Log in</button>
+      <button class="btn btn-primary">Get started</button>
+    </div>
+  </nav>
+
+  <!-- ── Hero ────────────────────────────────── -->
+  <section id="hero">
+    <div class="badge">✦ Nuevo &mdash; v2.0 ya disponible</div>
+    <h1 class="hero-h1">
+      La plataforma que<br>
+      <span class="gradient">acelera tu equipo</span>
+    </h1>
+    <p class="hero-sub">
+      Automatiza flujos, colabora en tiempo real y entrega más rápido.
+      Sin fricciones, sin infraestructura que gestionar.
+    </p>
+    <div class="hero-actions">
+      <button class="btn btn-primary btn-lg">Empezar gratis &rarr;</button>
+      <button class="btn btn-ghost btn-lg">Ver una demo</button>
+    </div>
+    <div class="hero-stats">
+      <div>
+        <div class="stat-num">12k+</div>
+        <div class="stat-label">Equipos activos</div>
+      </div>
+      <div>
+        <div class="stat-num">99.9%</div>
+        <div class="stat-label">Uptime garantizado</div>
+      </div>
+      <div>
+        <div class="stat-num">3.2×</div>
+        <div class="stat-label">Más velocidad media</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── Features ────────────────────────────── -->
+  <section id="features">
+    <p class="section-eyebrow">Capacidades</p>
+    <h2 class="section-h2">Todo lo que necesitas, sin fricciones</h2>
+    <div class="features-grid">
+      <div class="card" id="card-automation">
+        <div class="card-icon" style="background:#ede9fe;">⚡</div>
+        <h3>Automatización sin código</h3>
+        <p>Crea flujos complejos arrastrando bloques. Sin una línea de código requerida.</p>
+      </div>
+      <div class="card" id="card-collab">
+        <div class="card-icon" style="background:#dcfce7;">🤝</div>
+        <h3>Colaboración en tiempo real</h3>
+        <p>Trabaja junto a tu equipo con cambios que se sincronizan al instante.</p>
+      </div>
+      <div class="card" id="card-analytics">
+        <div class="card-icon" style="background:#fef9c3;">📊</div>
+        <h3>Analytics integrado</h3>
+        <p>Dashboards automáticos que muestran lo que importa, cuando importa.</p>
+      </div>
+      <div class="card" id="card-security">
+        <div class="card-icon" style="background:#fee2e2;">🔒</div>
+        <h3>Seguridad enterprise</h3>
+        <p>SSO, 2FA, auditoría de logs y cifrado end-to-end incluidos en todos los planes.</p>
+      </div>
+      <div class="card" id="card-integrations">
+        <div class="card-icon" style="background:#e0f2fe;">🔌</div>
+        <h3>+200 integraciones</h3>
+        <p>Conecta con Slack, GitHub, Jira, Salesforce y tus herramientas favoritas.</p>
+      </div>
+      <div class="card" id="card-api">
+        <div class="card-icon" style="background:#f0fdf4;">🛠️</div>
+        <h3>API & Webhooks</h3>
+        <p>Extiende cualquier flujo con nuestra REST API y webhooks en tiempo real.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── Pricing ──────────────────────────────── -->
+  <section id="pricing">
+    <p class="section-eyebrow">Precios</p>
+    <h2 class="section-h2" style="margin-bottom:0;">Simple, transparente, escalable</h2>
+    <div class="pricing-grid">
+      <div class="pricing-card">
+        <p class="pricing-plan">Starter</p>
+        <p class="pricing-price"><sup>$</sup>0</p>
+        <p class="pricing-period">para siempre gratis</p>
+        <ul class="pricing-features">
+          <li>3 proyectos</li>
+          <li>2 colaboradores</li>
+          <li>5 GB almacenamiento</li>
+          <li>Soporte por email</li>
+        </ul>
+        <button class="btn btn-ghost" style="width:100%">Empezar</button>
+      </div>
+      <div class="pricing-card featured">
+        <span class="pricing-badge">Popular</span>
+        <p class="pricing-plan">Pro</p>
+        <p class="pricing-price"><sup>$</sup>29</p>
+        <p class="pricing-period">por asiento / mes</p>
+        <ul class="pricing-features">
+          <li>Proyectos ilimitados</li>
+          <li>20 colaboradores</li>
+          <li>100 GB almacenamiento</li>
+          <li>Analytics avanzado</li>
+        </ul>
+        <button class="btn btn-primary" style="width:100%">Empezar con Pro</button>
+      </div>
+      <div class="pricing-card">
+        <p class="pricing-plan">Enterprise</p>
+        <p class="pricing-price" style="font-size:28px;padding-top:4px;">Custom</p>
+        <p class="pricing-period">contacta a ventas</p>
+        <ul class="pricing-features">
+          <li>Todo de Pro</li>
+          <li>SSO &amp; SAML</li>
+          <li>SLA garantizado</li>
+          <li>Soporte dedicado 24/7</li>
+        </ul>
+        <button class="btn btn-ghost" style="width:100%">Hablar con ventas</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── CTA ─────────────────────────────────── -->
+  <section id="cta-section">
+    <h2>¿Listo para despegar?</h2>
+    <p>Únete a más de 12,000 equipos que ya usan Acme Cloud.</p>
+    <button id="cta-btn" class="btn btn-white btn-lg">
+      Crear cuenta gratis — es free
+    </button>
+  </section>
+
+  <!-- ── Tour trigger (FAB) ───────────────────── -->
+  <button id="tour-trigger" title="Iniciar tour de producto">
+    <div class="tour-dot"></div>
+    Iniciar tour
+  </button>
+
+  <!-- ── Toast de fin ────────────────────────── -->
+  <div id="toast">✓ Tour completado</div>
+
+  <!-- Librería: UMD build generado por `npm run build` -->
+  <script src="../dist/index.umd.js"></script>
+  <script>
+    // SpotlightTour.default porque el UMD preserva el named export "default"
+    const tour = new SpotlightTour.default({
+      zoomOutScale:   0.58,
+      overlayOpacity: 0.68,
+
+      onEnd() {
+        const toast = document.getElementById('toast');
+        toast.classList.add('show');
+        setTimeout(() => toast.classList.remove('show'), 2800);
+      },
+
+      steps: [
+        {
+          target:      '#main-nav',
+          title:       'Navegación principal',
+          text:        'Accede a todas las secciones desde aquí: producto, features, precios y docs.',
+          cloneScale:  1.7,
+          tooltipSide: 'below',
+        },
+        {
+          target:      '#hero',
+          title:       'Hero — tu propuesta de valor',
+          text:        'La primera impresión lo es todo. Este bloque comunica el beneficio principal en menos de 5 segundos.',
+          cloneScale:  1.3,
+          tooltipSide: 'below',
+        },
+        {
+          target:      '#card-automation',
+          title:       'Automatización sin código',
+          text:        'Explica la capacidad estrella con ícono + título + descripción corta. Escaneable al instante.',
+          cloneScale:  2.6,
+          tooltipSide: 'right',
+        },
+        {
+          target:      '#card-analytics',
+          title:       'Analytics integrado',
+          text:        'Cards comparables en grid permiten que el usuario evalúe rápidamente sin leer párrafos.',
+          cloneScale:  2.6,
+          tooltipSide: 'left',
+        },
+        {
+          target:      '#pricing',
+          title:       'Precios transparentes',
+          text:        'Tres planes simples eliminan la fricción de "¿cuánto me va a costar esto?" antes de registrarse.',
+          cloneScale:  1.2,
+          tooltipSide: 'above',
+        },
+        {
+          target:      '#cta-btn',
+          title:       'Call to Action',
+          text:        'El CTA final convierte la intención en acción. Contraste alto, copia directa, sin fricción.',
+          cloneScale:  3.2,
+          tooltipSide: 'above',
+        },
+      ],
+    });
+
+    document.getElementById('tour-trigger').addEventListener('click', () => {
+      tour.start();
+    });
+  </script>
+</body>
+</html>
