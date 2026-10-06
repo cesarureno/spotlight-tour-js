@@ -21,9 +21,14 @@
   "types": "dist/index.d.ts",
   "exports": {
     ".": {
-      "types": "./dist/index.d.ts",
-      "import": "./dist/index.esm.js",
-      "require": "./dist/index.cjs"
+      "import": {
+        "types": "./dist/index.d.ts",
+        "default": "./dist/index.esm.js"
+      },
+      "require": {
+        "types": "./dist/index.d.cts",
+        "default": "./dist/index.cjs"
+      }
     }
   },
   "files": [
@@ -34,15 +39,26 @@
     "build": "rollup -c",
     "dev": "rollup -c --watch",
     "demo": "npx serve . -l 3000 --no-clipboard",
-    "prepublishOnly": "npm run build",
+    "lint": "eslint .",
+    "typecheck": "tsc --noEmit && tsc --noEmit -p test",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "check:package": "publint && attw --pack . --profile node16",
     "prepare": "npm run build"
   },
   "devDependencies": {
+    "@arethetypeswrong/cli": "^0.18.5",
+    "@eslint/js": "^10.0.1",
     "@rollup/plugin-typescript": "^11.1.6",
+    "eslint": "^10.12.0",
+    "jsdom": "^29.1.1",
+    "publint": "^0.3.25",
     "rollup": "^4.12.0",
     "rollup-plugin-dts": "^6.1.0",
     "tslib": "^2.6.2",
-    "typescript": "^5.4.0"
+    "typescript": "^5.4.0",
+    "typescript-eslint": "^8.71.1",
+    "vitest": "^4.1.11"
   },
   "unpkg": "dist/index.umd.js",
   "repository": {

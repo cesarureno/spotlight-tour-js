@@ -42,13 +42,13 @@ export default [
     plugins: [tsPlugin()],
   },
 
-  // Type declarations
+  // Type declarations: one per module format, so `require` gets CommonJS types
   {
     input,
-    output: {
-      file: 'dist/index.d.ts',
-      format: 'esm',
-    },
+    output: [
+      { file: 'dist/index.d.ts', format: 'esm' },
+      { file: 'dist/index.d.cts', format: 'esm' },
+    ],
     plugins: [dts()],
   },
 ];
