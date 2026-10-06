@@ -13,7 +13,8 @@ export interface SpotlightHandle {
 const PADDING = 8;
 
 /** `onResize` runs when the hole changes size or place, e.g. so the tooltip can follow it. */
-export function createSpotlight(target: HTMLElement, include?: string, onResize?: () => void): SpotlightHandle {
+/** `target` is read every frame: if the app replaces the element, it returns the new one. */
+export function createSpotlight(target: () => HTMLElement, include?: string, onResize?: () => void): SpotlightHandle {
   const html = document.documentElement;
 
   const hole = document.createElement('div');
@@ -34,8 +35,9 @@ export function createSpotlight(target: HTMLElement, include?: string, onResize?
   // a menu that opens inside it) or move it.
   const update = (): void => {
     // A target that left the DOM (e.g. a button that closes its own panel) keeps its last hole.
-    if (target.isConnected) {
-      const r = boundsOf([target, ...visibleIncluded(include)]);
+    const el = target();
+    if (el.isConnected) {
+      const r = boundsOf([el, ...visibleIncluded(include)]);
       const next = {
         left: r.left - PADDING,
         top: r.top - PADDING,

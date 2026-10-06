@@ -18,7 +18,7 @@ export function actionType(action: StepAction): ActionType | null {
  * so the app's handlers never run.
  */
 export function watchAction(
-  target: HTMLElement,
+  target: () => HTMLElement,
   action: StepAction,
   onDone: () => void,
   include?: string,
@@ -36,7 +36,7 @@ export function watchAction(
   const inside = (e: Event): boolean => {
     if (!(e.target instanceof Node)) return false;
     const node = e.target;
-    return target.contains(node) || visibleIncluded(include).some(el => el.contains(node));
+    return target().contains(node) || visibleIncluded(include).some(el => el.contains(node));
   };
 
   const block = (e: Event): void => {

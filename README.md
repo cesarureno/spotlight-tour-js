@@ -39,7 +39,7 @@ npm install github:cesarureno/spotlight-tour-js
 To pin a version, use a tag or a commit:
 
 ```bash
-npm install github:cesarureno/spotlight-tour-js#v0.4.1
+npm install github:cesarureno/spotlight-tour-js#v0.4.2
 ```
 
 ### Trying it locally without pushing changes
@@ -212,6 +212,8 @@ Steps without `intercept` are fine for anything that only reads or changes the v
 ```
 
 **Scrolling containers.** If the element is inside something that scrolls on its own, like the body of a long dialog, the tour scrolls it into view first.
+
+**Elements that re-render.** If the app replaces the element while the step is on screen (a calendar that redraws when its data arrives), the tour finds it again with the same `target` and follows the new one.
 
 **Real size by default.** Interactive steps show the element at its real size (`zoom: 1`). Set `zoom` above 1 to magnify it. That's fine for simple elements like inputs and buttons, but dropdowns and popovers that position themselves with JavaScript can show up out of place while the page is magnified.
 

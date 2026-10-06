@@ -237,15 +237,34 @@ export default class SpotlightTour {
     await this.stage!.scrollTo(target);
     if (!alive()) return;
 
-    this.stage!.focus(target, action?.zoom ?? step.zoom ?? 1);
+    const zoom = action?.zoom ?? step.zoom ?? 1;
+    this.stage!.focus(target, zoom);
     this.camera = 'focus';
     await delay(CAMERA_MS);
     if (!alive()) return;
 
+    // The app may have re-rendered the element meanwhile (a calendar that redraws when
+    // its data arrives): find it again and aim the camera at the new one.
+    if (!target.isConnected) {
+      const fresh = resolveTarget(step.target);
+      if (fresh) {
+        target = fresh;
+        await this.stage!.scrollTo(target);
+        this.stage!.focus(target, zoom);
+        await delay(CAMERA_MS);
+        if (!alive()) return;
+      }
+    }
+    // Same for later re-renders, while the step is on screen.
+    const current = (): HTMLElement => {
+      if (!target.isConnected) target = resolveTarget(step.target) ?? target;
+      return target;
+    };
+
     const side = step.tooltipSide ?? 'below';
     // The tooltip follows the hole when using the element changes its size (a panel
     // that opens, a field that grows) so it never ends up covering it.
-    this.spotlight = createSpotlight(target, step.include, () => {
+    this.spotlight = createSpotlight(current, step.include, () => {
       if (this.tooltip) positionTooltip(this.tooltip, this.spotlight!.rect(), side);
     });
     // Only an interactive step lets the pointer reach the page.
@@ -272,7 +291,7 @@ export default class SpotlightTour {
 
     if (!action) return;
 
-    this.stopWatching = watchAction(target, action, () => {
+    this.stopWatching = watchAction(current, action, () => {
       if (!alive()) return;
       this.awaitingAction = false;
       markActionDone(tooltip, this.labels.actionDone);

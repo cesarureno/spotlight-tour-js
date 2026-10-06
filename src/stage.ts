@@ -87,6 +87,14 @@ export function createStage(rootOption?: string | HTMLElement): Stage {
     };
   }
 
+  // The body's box with no transform on it, in viewport coordinates.
+  function pageBox(): { left: number; top: number; right: number; bottom: number } {
+    const s = window.getComputedStyle(body);
+    const left = parseFloat(s.marginLeft);
+    const top = parseFloat(s.marginTop);
+    return { left, top, right: left + body.offsetWidth, bottom: top + body.offsetHeight };
+  }
+
   // Where the element would be on screen with no transform on the body. It undoes the
   // transform the body has right now (read from the computed style, so it's right even
   // mid-transition) instead of trusting the last one we set.
@@ -143,7 +151,18 @@ export function createStage(rootOption?: string | HTMLElement): Stage {
       const tx = vw / 2 - origin.x - scale * (x + width / 2 - origin.x);
       const ty = centerY - origin.y - scale * (y + height / 2 - origin.y);
 
-      applyTransform(tx, ty, scale, look);
+      // Never past the page's edges: an element near one of them ends up off-center
+      // instead of the camera showing the empty space around the page.
+      const box = pageBox();
+      const clamp = (value: number, low: number, high: number) => Math.min(Math.max(value, low), high);
+      const txEdge = clamp(tx,
+        vw - origin.x - scale * (box.right - origin.x),
+        -origin.x - scale * (box.left - origin.x));
+      const tyEdge = clamp(ty,
+        vh - origin.y - scale * (box.bottom - origin.y),
+        -origin.y - scale * (box.top - origin.y));
+
+      applyTransform(txEdge, tyEdge, scale, look);
     },
 
     setPointer: enabled => {

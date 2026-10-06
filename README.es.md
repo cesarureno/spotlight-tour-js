@@ -39,7 +39,7 @@ npm install github:cesarureno/spotlight-tour-js
 Para fijar una versión, usa un tag o un commit:
 
 ```bash
-npm install github:cesarureno/spotlight-tour-js#v0.4.1
+npm install github:cesarureno/spotlight-tour-js#v0.4.2
 ```
 
 ### Probarla localmente sin subir cambios
@@ -212,6 +212,8 @@ Los pasos sin `intercept` sirven para todo lo que solo lee o cambia la vista: ab
 ```
 
 **Contenedores con scroll.** Si el elemento está dentro de algo que se desplaza por su cuenta, como el cuerpo de un modal largo, el tour lo trae a la vista primero.
+
+**Elementos que se redibujan.** Si la app reemplaza el elemento mientras el paso está en pantalla (un calendario que se vuelve a dibujar al llegar sus datos), el tour lo vuelve a buscar con el mismo `target` y sigue al nuevo.
 
 **Tamaño real por defecto.** Los pasos interactivos muestran el elemento a su tamaño real (`zoom: 1`). Con `zoom` mayor a 1 se agranda. Va bien con elementos simples como inputs y botones, pero los dropdowns y popovers que se posicionan con JavaScript pueden aparecer fuera de lugar mientras la página está agrandada.
 
