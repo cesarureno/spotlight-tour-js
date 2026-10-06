@@ -1,0 +1,53 @@
+name: Demo on GitHub Pages
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+# A newer push replaces a deploy that's still waiting, but never cuts one off mid-way.
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      # `npm ci` runs the `prepare` script, which builds dist/.
+      - run: npm ci
+
+      # Same layout as the repo, so the demo's relative paths (../dist) work
+      # both here and with `npm run demo`. The site root redirects to the demo.
+      - name: Assemble site
+        run: |
+          mkdir -p _site
+          cp -R demo dist _site/
+          cat > _site/index.html <<'HTML'
+          <!DOCTYPE html>
+          <meta charset="utf-8">
+          <title>spotlight-tour</title>
+          <meta http-equiv="refresh" content="0; url=demo/">
+          <link rel="canonical" href="demo/">
+          <a href="demo/">spotlight-tour demo</a>
+          HTML
+
+      - uses: actions/configure-pages@v5
+      - uses: actions/upload-pages-artifact@v3
+      - id: deployment
+        uses: actions/deploy-pages@v4

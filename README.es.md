@@ -9,6 +9,8 @@ Tours de onboarding con efecto cinematográfico. Al iniciar, la página se aleja
 - Compatible con SSR: no toca `window` ni `document` hasta llamar a `start()`.
 - Tipos de TypeScript incluidos.
 
+**[Ver el demo →](https://cesarureno.github.io/spotlight-tour-js/)** La misma app con y sin la librería, para comparar.
+
 ## Cómo funciona
 
 Cada tour pasa por tres fases:
@@ -37,8 +39,6 @@ Para fijar una versión, usa un tag o un commit:
 ```bash
 npm install github:cesarureno/spotlight-tour-js#v0.1.0
 ```
-
-Si el repositorio es privado, quien instale necesita acceso a él. En CI o en el servidor de deploy eso significa una llave SSH o un token con permiso de lectura.
 
 ### Probarla localmente sin subir cambios
 
@@ -199,7 +199,9 @@ npm run dev     # compila al guardar
 npm run demo    # sirve el proyecto en http://localhost:3000
 ```
 
-Con `npm run demo` corriendo, abre `http://localhost:3000/demo/` y presiona «Iniciar tour».
+Con `npm run demo` corriendo, abre `http://localhost:3000/demo/`. Hay dos páginas con la misma app: `without-tour.html` y `with-tour.html`. Todo lo que agrega la librería está al final de `with-tour.html`.
+
+Cada push a `main` publica el demo en GitHub Pages (`.github/workflows/pages.yml`).
 
 Estructura:
 

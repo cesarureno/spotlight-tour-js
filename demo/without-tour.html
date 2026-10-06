@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Acme Cloud — without spotlight-tour</title>
+  <link rel="stylesheet" href="assets/app.css">
+</head>
+<body>
+
+  <div id="app">
+
+    <!-- ── Navigation ──────────────────────────── -->
+    <nav id="main-nav">
+      <a href="#" class="nav-logo">
+        <div class="nav-logo-mark">A</div>
+        Acme Cloud
+      </a>
+      <ul class="nav-links">
+        <li><a href="#">Product</a></li>
+        <li><a href="#features">Features</a></li>
+        <li><a href="#pricing">Pricing</a></li>
+        <li><a href="#">Docs</a></li>
+      </ul>
+      <div class="nav-ctas">
+        <button class="btn btn-ghost">Log in</button>
+        <button class="btn btn-primary">Get started</button>
+      </div>
+    </nav>
+
+    <!-- ── Hero ────────────────────────────────── -->
+    <section id="hero">
+      <div class="badge">✦ New &mdash; v2.0 is out</div>
+      <h1 class="hero-h1">
+        The platform that<br>
+        <span class="gradient">speeds up your team</span>
+      </h1>
+      <p class="hero-sub">
+        Automate workflows, collaborate in real time, and ship faster.
+        No friction, no infrastructure to manage.
+      </p>
+      <div class="hero-actions">
+        <button class="btn btn-primary btn-lg">Start for free &rarr;</button>
+        <button class="btn btn-ghost btn-lg">Watch a demo</button>
+      </div>
+      <div class="hero-stats">
+        <div>
+          <div class="stat-num">12k+</div>
+          <div class="stat-label">Active teams</div>
+        </div>
+        <div>
+          <div class="stat-num">99.9%</div>
+          <div class="stat-label">Guaranteed uptime</div>
+        </div>
+        <div>
+          <div class="stat-num">3.2×</div>
+          <div class="stat-label">Faster on average</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ── Features ────────────────────────────── -->
+    <section id="features">
+      <p class="section-eyebrow">Capabilities</p>
+      <h2 class="section-h2">Everything you need, without the friction</h2>
+      <div class="features-grid">
+        <div class="card" id="card-automation">
+          <div class="card-icon" style="background:#ede9fe;">⚡</div>
+          <h3>No-code automation</h3>
+          <p>Build complex workflows by dragging blocks. Not a single line of code required.</p>
+        </div>
+        <div class="card" id="card-collab">
+          <div class="card-icon" style="background:#dcfce7;">🤝</div>
+          <h3>Real-time collaboration</h3>
+          <p>Work alongside your team with changes that sync instantly.</p>
+        </div>
+        <div class="card" id="card-analytics">
+          <div class="card-icon" style="background:#fef9c3;">📊</div>
+          <h3>Built-in analytics</h3>
+          <p>Automatic dashboards that show what matters, when it matters.</p>
+        </div>
+        <div class="card" id="card-security">
+          <div class="card-icon" style="background:#fee2e2;">🔒</div>
+          <h3>Enterprise security</h3>
+          <p>SSO, 2FA, audit logs, and end-to-end encryption on every plan.</p>
+        </div>
+        <div class="card" id="card-integrations">
+          <div class="card-icon" style="background:#e0f2fe;">🔌</div>
+          <h3>200+ integrations</h3>
+          <p>Connect Slack, GitHub, Jira, Salesforce, and the rest of your tools.</p>
+        </div>
+        <div class="card" id="card-api">
+          <div class="card-icon" style="background:#f0fdf4;">🛠️</div>
+          <h3>API &amp; webhooks</h3>
+          <p>Extend any workflow with our REST API and real-time webhooks.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- ── Pricing ──────────────────────────────── -->
+    <section id="pricing">
+      <p class="section-eyebrow">Pricing</p>
+      <h2 class="section-h2" style="margin-bottom:0;">Simple, transparent, scalable</h2>
+      <div class="pricing-grid">
+        <div class="pricing-card">
+          <p class="pricing-plan">Starter</p>
+          <p class="pricing-price"><sup>$</sup>0</p>
+          <p class="pricing-period">free forever</p>
+          <ul class="pricing-features">
+            <li>3 projects</li>
+            <li>2 collaborators</li>
+            <li>5 GB storage</li>
+            <li>Email support</li>
+          </ul>
+          <button class="btn btn-ghost" style="width:100%">Get started</button>
+        </div>
+        <div class="pricing-card featured">
+          <span class="pricing-badge">Popular</span>
+          <p class="pricing-plan">Pro</p>
+          <p class="pricing-price"><sup>$</sup>29</p>
+          <p class="pricing-period">per seat / month</p>
+          <ul class="pricing-features">
+            <li>Unlimited projects</li>
+            <li>20 collaborators</li>
+            <li>100 GB storage</li>
+            <li>Advanced analytics</li>
+          </ul>
+          <button class="btn btn-primary" style="width:100%">Go Pro</button>
+        </div>
+        <div class="pricing-card">
+          <p class="pricing-plan">Enterprise</p>
+          <p class="pricing-price" style="font-size:28px;padding-top:4px;">Custom</p>
+          <p class="pricing-period">talk to sales</p>
+          <ul class="pricing-features">
+            <li>Everything in Pro</li>
+            <li>SSO &amp; SAML</li>
+            <li>Guaranteed SLA</li>
+            <li>24/7 dedicated support</li>
+          </ul>
+          <button class="btn btn-ghost" style="width:100%">Contact sales</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- ── CTA ─────────────────────────────────── -->
+    <section id="cta-section">
+      <h2>Ready for liftoff?</h2>
+      <p>Join the 12,000+ teams already using Acme Cloud.</p>
+      <button id="cta-btn" class="btn btn-white btn-lg">
+        Create your free account
+      </button>
+    </section>
+
+  </div>
+
+  <!-- ── Demo switcher (not part of the app) ─── -->
+  <nav id="demo-switcher" aria-label="Demos">
+    <a href="./">← All demos</a>
+    <a href="without-tour.html" aria-current="page">Without tour</a>
+    <a href="with-tour.html">With tour</a>
+  </nav>
+</body>
+</html>
