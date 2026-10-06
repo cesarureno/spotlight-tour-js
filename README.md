@@ -1,55 +1,57 @@
 # spotlight-tour
 
-Tours de onboarding con efecto cinematográfico. Al iniciar, la página se aleja como si la cámara retrocediera. En cada paso, el elemento que quieres mostrar sale volando de la página y crece al centro de la pantalla, con un tooltip para avanzar.
+**English** · [Español](README.es.md)
 
-- JavaScript puro: funciona con Vue, React, Svelte o HTML sin framework.
-- Sin dependencias. Los estilos se inyectan solos.
-- Compatible con SSR: no toca `window` ni `document` hasta llamar a `start()`.
-- Tipos de TypeScript incluidos.
+Onboarding tours with a cinematic effect. When the tour starts, the page pulls back as if the camera were moving away. On each step, the element you want to show flies out of the page and grows in the middle of the screen, with a tooltip to move through the tour.
 
-## Cómo funciona
+- Plain JavaScript: works with Vue, React, Svelte, or HTML with no framework.
+- No dependencies. Styles are injected automatically.
+- SSR-safe: it doesn't touch `window` or `document` until you call `start()`.
+- TypeScript types included.
 
-Cada tour pasa por tres fases:
+## How it works
 
-1. **Alejamiento.** El `<body>` se encoge (60 % por defecto) y queda flotando sobre un fondo oscuro. La raíz de la app (`#app`) se recorta a la altura de la ventana y se vuelve el contenedor que se desplaza. Así el tour puede mover la mini página hasta cada elemento sin que el usuario la desplace.
-2. **Vuelo.** Para cada paso, la mini página se desplaza hasta el elemento y lo marca con un contorno. Después, una copia del elemento vuela a la franja libre debajo de la mini página y crece hasta 2.2 veces su tamaño (configurable).
-3. **Tooltip.** Junto a la copia aparece el tooltip con título, texto, puntos de progreso y botones para avanzar, regresar o cerrar.
+Every tour goes through three phases:
 
-### Detalles que importan si lo integras en una app
+1. **Zoom out.** The `<body>` shrinks (to 60% by default) and floats over a dark backdrop. The app root (`#app`) is clipped to the window height and becomes the scrolling container. That way the tour can scroll the mini-page to each element without the user scrolling it.
+2. **Flight.** For each step, the mini-page scrolls to the element and outlines it. Then a copy of the element flies to the free strip below the mini-page and grows up to 2.2× its size (configurable).
+3. **Tooltip.** A tooltip appears next to the copy, with a title, text, progress dots, and buttons to go forward, go back, or close.
 
-- **No mueve los nodos de tu página.** Escala el `<body>` en su lugar, así que Vue, React y los demás conservan sus referencias al DOM. Lo que tu framework monta directo en el body (diálogos, toasts, menús) se encoge junto con la página y queda bien posicionado.
-- **Las capas del tour cuelgan de `<html>`, junto al `<body>`.** Son el fondo oscuro, la copia y el tooltip. Así no heredan el escalado.
-- **Al terminar restaura todo:** los estilos de `<html>`, `<body>` y la raíz quedan como estaban. El scroll de la ventana queda donde terminó el último paso.
-- **La copia es una foto del elemento.** No es interactiva y lleva `pointer-events: none`.
+### Things that matter when you integrate it into an app
 
-## Instalación
+- **It doesn't move your page's nodes.** It scales the `<body>` in place, so Vue, React, and other frameworks keep their DOM references. Anything your framework mounts straight into the body (dialogs, toasts, menus) shrinks with the page and stays correctly positioned.
+- **The tour's layers hang from `<html>`, next to the `<body>`.** These are the dark backdrop, the copy, and the tooltip. That keeps them out of the scaling.
+- **When it ends, everything is restored:** the styles of `<html>`, `<body>`, and the root go back to what they were. The window scroll stays where the last step left it.
+- **The copy is a snapshot of the element.** It isn't interactive and has `pointer-events: none`.
 
-Todavía no está publicada en npm. Se instala desde GitHub: npm la descarga y la compila sola gracias al script `prepare`.
+## Installation
+
+It isn't published to npm yet. Install it from GitHub: npm downloads it and builds it automatically thanks to the `prepare` script.
 
 ```bash
 npm install github:cesarureno/spotlight-tour-js
 ```
 
-Para fijar una versión, usa un tag o un commit:
+To pin a version, use a tag or a commit:
 
 ```bash
 npm install github:cesarureno/spotlight-tour-js#v0.1.0
 ```
 
-Si el repositorio es privado, quien instale necesita acceso a él. En CI o en el servidor de deploy eso significa una llave SSH o un token con permiso de lectura.
+If the repository is private, whoever installs it needs access to it. In CI or on a deploy server, that means an SSH key or a token with read access.
 
-### Probarla localmente sin subir cambios
+### Trying it locally without pushing changes
 
 ```bash
-# en la carpeta de la librería
+# in the library folder
 npm install && npm run build
 npm link
 
-# en tu proyecto
+# in your project
 npm link spotlight-tour
 ```
 
-## Uso
+## Usage
 
 ```js
 import SpotlightTour from 'spotlight-tour';
@@ -58,26 +60,26 @@ const tour = new SpotlightTour({
   steps: [
     {
       target: '#nav',
-      title: 'Navegación principal',
-      text: 'Desde aquí accedes a todos los módulos.',
+      title: 'Main navigation',
+      text: 'Every module is one click away from here.',
     },
     {
       target: '.stats-row',
-      title: 'Tus indicadores',
-      text: 'Se actualizan cada vez que entras.',
+      title: 'Your metrics',
+      text: 'They update every time you log in.',
       cloneScale: 1.6,
       tooltipSide: 'above',
     },
   ],
-  onEnd: () => console.log('tour terminado'),
+  onEnd: () => console.log('tour finished'),
 });
 
 tour.start();
 ```
 
-### Con Vue y vue-router (tours que cambian de pantalla)
+### With Vue and vue-router (tours across pages)
 
-`onEnter` puede devolver una promesa: el tour la espera y luego busca el elemento. Lo busca durante 4 segundos (configurable), así que alcanza el tiempo para que la ruta cargue y la API responda.
+`onEnter` can return a promise: the tour waits for it and then looks for the element. It keeps looking for 4 seconds (configurable), which leaves time for the route to load and the API to respond.
 
 ```js
 import SpotlightTour from 'spotlight-tour';
@@ -93,31 +95,31 @@ const tour = new SpotlightTour({
   },
   steps: [
     {
-      target: '[data-tour="tabla-vales"]',
-      title: 'Vales de transferencia',
-      text: 'Aquí están todos los vales.',
+      target: '[data-tour="transfers-table"]',
+      title: 'Transfer vouchers',
+      text: 'All the vouchers are here.',
       onEnter: () => router.push('/transferencia-mercancia'),
     },
     {
-      // Sin un selector estable, una función que devuelva el elemento.
+      // No stable selector? Use a function that returns the element.
       target: () => [...document.querySelectorAll('th')].find(th => th.textContent.includes('Capturó')),
-      title: 'Columna «Capturó»',
-      text: 'Muestra quién capturó el vale.',
+      title: '"Captured by" column',
+      text: 'Shows who entered the voucher.',
     },
   ],
 });
 ```
 
-Créalo una sola vez, fuera de los componentes, para que `start()` no se llame dos veces.
+Create it once, outside your components, so `start()` doesn't get called twice.
 
-### Desde una etiqueta `<script>`
+### From a `<script>` tag
 
-Compila con `npm run build` y sirve `dist/index.umd.js` junto a tu página. `dist/` no se versiona en el repositorio.
+Build with `npm run build` and serve `dist/index.umd.js` next to your page. `dist/` isn't committed to the repository.
 
 ```html
 <script src="index.umd.js"></script>
 <script>
-  // El build UMD expone la clase en .default
+  // The UMD build exposes the class on .default
   const tour = new SpotlightTour.default({ steps: [/* ... */] });
   tour.start();
 </script>
@@ -127,29 +129,29 @@ Compila con `npm run build` y sirve `dist/index.umd.js` junto a tu página. `dis
 
 ### `new SpotlightTour(options)`
 
-| Opción | Tipo | Por defecto | Descripción |
+| Option | Type | Default | Description |
 |---|---|---|---|
-| `steps` | `TourStep[]` | — | Los pasos del tour. Obligatorio. |
-| `zoomOutScale` | `number` | `0.6` | Tamaño de la página alejada (1 = sin alejar). |
-| `overlayOpacity` | `number` | `0.88` | Opacidad del fondo oscuro detrás de la página. |
-| `root` | `string \| HTMLElement` | `#app, #root, #__nuxt, #__next` | Raíz de la app: el elemento que se desplaza durante el tour. Debe ser hijo directo del `<body>`. Si no hay ninguno, los hijos del body se envuelven en un contenedor temporal. |
-| `targetTimeout` | `number` | `4000` | Milisegundos que espera a que aparezca el elemento de cada paso. |
-| `onMissingTarget` | `'skip' \| 'end'` | `'skip'` | Qué hacer si el elemento nunca aparece: saltar al siguiente paso (en la dirección en que iba el usuario) o terminar el tour. |
-| `labels` | `Partial<TourLabels>` | en inglés | Textos del tooltip (ver abajo). |
-| `onEnd` | `() => void` | — | Se llama cuando el tour terminó y la página ya se restauró. |
+| `steps` | `TourStep[]` | — | The tour's steps. Required. |
+| `zoomOutScale` | `number` | `0.6` | Size of the zoomed-out page (1 = no zoom out). |
+| `overlayOpacity` | `number` | `0.88` | Opacity of the dark backdrop behind the page. |
+| `root` | `string \| HTMLElement` | `#app, #root, #__nuxt, #__next` | The app root: the element that scrolls during the tour. It must be a direct child of `<body>`. If there's none, the body's children are wrapped in a temporary container. |
+| `targetTimeout` | `number` | `4000` | Milliseconds to wait for each step's element to appear. |
+| `onMissingTarget` | `'skip' \| 'end'` | `'skip'` | What to do if the element never appears: skip to the next step (in the direction the user was going) or end the tour. |
+| `labels` | `Partial<TourLabels>` | English | Tooltip texts (see below). |
+| `onEnd` | `() => void` | — | Called once the tour has ended and the page has been restored. |
 
 ### `TourStep`
 
-| Campo | Tipo | Por defecto | Descripción |
+| Field | Type | Default | Description |
 |---|---|---|---|
-| `target` | `string \| () => Element \| null` | — | Selector CSS o función que devuelve el elemento. Debe estar visible: uno con `display: none` cuenta como que no existe. |
-| `title` | `string` | — | Título del tooltip. |
-| `text` | `string` | — | Texto del tooltip. Se muestra como texto plano, no como HTML. |
-| `cloneScale` | `number` | `2.2` | Cuánto crece la copia. Se reduce sola si no cabe en la pantalla. |
-| `tooltipSide` | `'below' \| 'above' \| 'left' \| 'right'` | `'below'` | Lado de la copia donde aparece el tooltip. |
-| `timeout` | `number` | `targetTimeout` | Espera máxima solo para este paso. |
-| `onEnter` | `() => void \| Promise<void>` | — | Corre antes de buscar el elemento. Si devuelve una promesa, el tour la espera. |
-| `onLeave` | `() => void \| Promise<void>` | — | Corre al salir del paso, también cuando el tour se cierra. |
+| `target` | `string \| () => Element \| null` | — | CSS selector, or a function that returns the element. It must be visible: an element with `display: none` counts as missing. |
+| `title` | `string` | — | Tooltip title. |
+| `text` | `string` | — | Tooltip text. Rendered as plain text, not HTML. |
+| `cloneScale` | `number` | `2.2` | How much the copy grows. It shrinks automatically if it doesn't fit on screen. |
+| `tooltipSide` | `'below' \| 'above' \| 'left' \| 'right'` | `'below'` | Which side of the copy the tooltip appears on. |
+| `timeout` | `number` | `targetTimeout` | Max wait for this step only. |
+| `onEnter` | `() => void \| Promise<void>` | — | Runs before looking for the element. If it returns a promise, the tour waits for it. |
+| `onLeave` | `() => void \| Promise<void>` | — | Runs when leaving the step, including when the tour is closed. |
 
 ### `TourLabels`
 
@@ -158,60 +160,60 @@ Compila con `npm run build` y sirve `dist/index.umd.js` junto a tu página. `dis
   prev: string;   // 'Back'
   next: string;   // 'Next'
   done: string;   // 'Done'
-  close: string;  // 'Close tour' — etiqueta accesible del botón ×
+  close: string;  // 'Close tour' — accessible label for the × button
   step: (current: number, total: number) => string; // 'Step 1 / 5'
 }
 ```
 
-### Métodos
+### Methods
 
-| Método | Descripción |
+| Method | Description |
 |---|---|
-| `start()` | Inicia el tour. No hace nada si ya está corriendo o terminando de cerrarse. |
-| `goTo(index)` | Va al paso `index` (desde 0). Devuelve una promesa que se resuelve cuando el paso se mostró o se saltó. |
-| `next()` / `prev()` | Paso siguiente o anterior. |
-| `end()` | Cierra el tour y restaura la página. |
-| `isActive` | `true` mientras el tour corre. Sirve, por ejemplo, para bloquear peticiones que guardan datos. |
+| `start()` | Starts the tour. Does nothing if it's already running or still closing. |
+| `goTo(index)` | Goes to step `index` (0-based). Returns a promise that resolves once the step was shown or skipped. |
+| `next()` / `prev()` | Next or previous step. |
+| `end()` | Closes the tour and restores the page. |
+| `isActive` | `true` while the tour is running. Useful, for example, to block requests that save data. |
 
-### Teclado
+### Keyboard
 
-| Tecla | Acción |
+| Key | Action |
 |---|---|
-| `→` / `↓` | Siguiente paso |
-| `←` / `↑` | Paso anterior |
-| `Esc` | Cerrar el tour |
+| `→` / `↓` | Next step |
+| `←` / `↑` | Previous step |
+| `Esc` | Close the tour |
 
-## Limitaciones conocidas
+## Known limitations
 
-- **La copia es estática.** Un `<canvas>` (por ejemplo, gráficas de Chart.js) sale en blanco. Los inputs muestran su valor inicial, no lo que el usuario escribió.
-- **Estilos que dependen del elemento padre.** Reglas como `.sidebar .item` no se aplican en la copia, porque esta cuelga de `<html>`. Las variables CSS definidas en `:root` sí funcionan.
-- **Elementos `position: fixed` dentro de la raíz de la app.** Mientras el tour corre, se mueven junto con el contenido en lugar de quedarse fijos. Los `position: sticky` sí funcionan.
-- **Los colores del tooltip y del contorno** son índigo (`#6366f1`) y por ahora no se pueden configurar.
+- **The copy is static.** A `<canvas>` (Chart.js charts, for example) comes out blank. Inputs show their initial value, not what the user typed.
+- **Styles that depend on the parent element.** Rules like `.sidebar .item` don't apply to the copy, because it hangs from `<html>`. CSS variables defined on `:root` do work.
+- **`position: fixed` elements inside the app root.** While the tour runs, they move with the content instead of staying fixed. `position: sticky` elements work fine.
+- **The tooltip and outline colors** are indigo (`#6366f1`) and can't be configured yet.
 
-## Desarrollo
+## Development
 
 ```bash
 npm install
-npm run build   # compila dist/ (ESM, CJS, UMD y tipos)
-npm run dev     # compila al guardar
-npm run demo    # sirve el proyecto en http://localhost:3000
+npm run build   # builds dist/ (ESM, CJS, UMD, and types)
+npm run dev     # rebuilds on save
+npm run demo    # serves the project at http://localhost:3000
 ```
 
-Con `npm run demo` corriendo, abre `http://localhost:3000/demo/` y presiona «Iniciar tour».
+With `npm run demo` running, open `http://localhost:3000/demo/` and click "Iniciar tour".
 
-Estructura:
+Structure:
 
 ```
 src/
-├── index.ts     clase SpotlightTour: navegación entre pasos y ciclo de vida
-├── stage.ts     prepara la página (escala, scroll de la raíz) y la restaura
-├── clone.ts     la copia que vuela y crece
-├── tooltip.ts   el tooltip con navegación
-├── overlay.ts   el fondo oscuro
-├── styles.ts    estilos que se inyectan en el <head>
-└── types.ts     tipos públicos
+├── index.ts     SpotlightTour class: step navigation and lifecycle
+├── stage.ts     prepares the page (scale, root scroll) and restores it
+├── clone.ts     the copy that flies and grows
+├── tooltip.ts   the tooltip with navigation
+├── overlay.ts   the dark backdrop
+├── styles.ts    styles injected into the <head>
+└── types.ts     public types
 ```
 
-## Licencia
+## License
 
 MIT
