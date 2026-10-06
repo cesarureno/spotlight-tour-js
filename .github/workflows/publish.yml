@@ -35,4 +35,10 @@ jobs:
       # `npm ci` runs the `prepare` script, which builds dist/.
       - run: npm ci
 
+      # Same checks as CI, in case the tag points at a commit that never went through a PR.
+      - run: npm run lint
+      - run: npm run typecheck
+      - run: npm test
+      - run: npm run check:package
+
       - run: npm publish
