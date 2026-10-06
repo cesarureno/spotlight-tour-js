@@ -34,7 +34,6 @@
     "build": "rollup -c",
     "dev": "rollup -c --watch",
     "demo": "npx serve . -l 3000 --no-clipboard",
-    "prepublishOnly": "npm run build",
     "prepare": "npm run build"
   },
   "devDependencies": {

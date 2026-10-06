@@ -1,0 +1,38 @@
+name: Publish to npm
+
+on:
+  push:
+    tags: ['v*']
+
+permissions:
+  contents: read
+  # Trusted publishing: npm trades the GitHub OIDC token for a one-off publish
+  # token, so no NPM_TOKEN secret is needed. It also attaches provenance.
+  id-token: write
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      # Trusted publishing needs npm 11.5.1+, which ships with Node 24.
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          registry-url: https://registry.npmjs.org
+          cache: npm
+
+      # Refuse to publish if the tag and package.json disagree.
+      - name: Check tag matches version
+        run: |
+          version="v$(node -p "require('./package.json').version")"
+          if [ "$version" != "$GITHUB_REF_NAME" ]; then
+            echo "Tag $GITHUB_REF_NAME does not match package.json ($version)"
+            exit 1
+          fi
+
+      # `npm ci` runs the `prepare` script, which builds dist/.
+      - run: npm ci
+
+      - run: npm publish
