@@ -135,8 +135,8 @@ export default class SpotlightTour {
         return;
       }
 
-      if (step.action) {
-        await this.showInteractiveStep(step, step.action, index, target, alive);
+      if (step.action || step.mode === 'real') {
+        await this.showRealStep(step, index, target, alive);
         return;
       }
 
@@ -223,19 +223,21 @@ export default class SpotlightTour {
     }, 450);
   }
 
-  // The camera moves onto the real element and the user has to use it. No clone here:
-  // a copy can't be clicked or typed into.
-  private async showInteractiveStep(
+  // The camera moves onto the real element. With an action, the user has to use it to
+  // move on (no clone there: a copy can't be clicked or typed into); without one, it's
+  // only shown, in place, with everything that styles it from around.
+  private async showRealStep(
     step: TourStep,
-    action: StepAction,
     index: number,
     target: HTMLElement,
     alive: () => boolean,
   ): Promise<void> {
+    const action = step.action;
+
     await this.stage!.scrollTo(target);
     if (!alive()) return;
 
-    this.stage!.focus(target, action.zoom ?? 1);
+    this.stage!.focus(target, action?.zoom ?? step.zoom ?? 1);
     this.camera = 'focus';
     await delay(CAMERA_MS);
     if (!alive()) return;
@@ -246,8 +248,11 @@ export default class SpotlightTour {
     this.spotlight = createSpotlight(target, () => {
       if (this.tooltip) positionTooltip(this.tooltip, this.spotlight!.rect(), side);
     });
-    this.stage!.setPointer(true);
-    this.awaitingAction = true;
+    // Only an interactive step lets the pointer reach the page.
+    if (action) {
+      this.stage!.setPointer(true);
+      this.awaitingAction = true;
+    }
 
     const last = this.steps.length - 1;
     const tooltip = createTooltip({
@@ -258,12 +263,14 @@ export default class SpotlightTour {
       totalSteps: this.steps.length,
       labels: this.labels,
       visualRect: this.spotlight.rect(),
-      hint: action.hint ?? this.hintFor(actionType(action)),
+      hint: action ? action.hint ?? this.hintFor(actionType(action)) : undefined,
       onPrev: index > 0 ? () => this.goTo(index - 1) : undefined,
       onNext: index < last ? () => this.goTo(index + 1) : undefined,
       onClose: () => this.end(),
     });
     this.tooltip = tooltip;
+
+    if (!action) return;
 
     this.stopWatching = watchAction(target, action, () => {
       if (!alive()) return;

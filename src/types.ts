@@ -62,6 +62,15 @@ export interface TourStep {
   /** Runs before looking for the target. If it returns a promise (e.g. a route change), the tour waits for it. */
   onEnter?: () => void | Promise<void>;
   onLeave?: () => void | Promise<void>;
+  /**
+   * 'copy' (default): a copy of the element flies out and grows.
+   * 'real': the camera moves onto the real element instead, with nothing to do but read.
+   * Use it when the element's look depends on its parents (table cells, items styled by
+   * their list), which a copy outside the page loses. Steps with `action` are always real.
+   */
+  mode?: 'copy' | 'real';
+  /** For real steps: magnify the page on the element. Default 1. Same caveats as `StepAction.zoom`. */
+  zoom?: number;
   /** Makes the step interactive. `cloneScale` doesn't apply then. */
   action?: StepAction;
 }

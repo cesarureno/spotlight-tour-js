@@ -39,7 +39,7 @@ npm install github:cesarureno/spotlight-tour-js
 To pin a version, use a tag or a commit:
 
 ```bash
-npm install github:cesarureno/spotlight-tour-js#v0.2.1
+npm install github:cesarureno/spotlight-tour-js#v0.3.0
 ```
 
 ### Trying it locally without pushing changes
@@ -125,6 +125,19 @@ Build with `npm run build` and serve `dist/index.umd.js` next to your page. `dis
   const tour = new SpotlightTour.default({ steps: [/* ... */] });
   tour.start();
 </script>
+```
+
+### Real elements
+
+A copy flies out of the page, so it loses any style that comes from its parents: a table cell styled by the table, a menu item styled by its menu. For those, use `mode: 'real'`. The camera moves onto the element in place, as in an interactive step, but there's nothing to do: "Next" is enabled and the page doesn't take clicks.
+
+```js
+{
+  target: () => [...document.querySelectorAll('th')].find(th => th.textContent.includes('Captured by')),
+  title: 'New column',
+  text: 'Shows who entered the voucher.',
+  mode: 'real',
+}
 ```
 
 ### Interactive steps
@@ -215,6 +228,8 @@ Steps without `intercept` are fine for anything that only reads or changes the v
 | `timeout` | `number` | `targetTimeout` | Max wait for this step only. |
 | `onEnter` | `() => void \| Promise<void>` | — | Runs before looking for the element. If it returns a promise, the tour waits for it. |
 | `onLeave` | `() => void \| Promise<void>` | — | Runs when leaving the step, including when the tour is closed. |
+| `mode` | `'copy' \| 'real'` | `'copy'` | `'real'` moves the camera onto the element in place instead of flying a copy. See [Real elements](#real-elements). |
+| `zoom` | `number` | `1` | For `mode: 'real'`: magnify the page on the element. |
 | `action` | `StepAction` | — | Makes the step [interactive](#interactive-steps). `cloneScale` doesn't apply then. |
 
 ### `StepAction`
@@ -267,7 +282,7 @@ The arrows don't skip an interactive step the user hasn't done yet, and they're 
 ## Known limitations
 
 - **The copy is static.** A `<canvas>` (Chart.js charts, for example) comes out blank. Inputs show their initial value, not what the user typed.
-- **Styles that depend on the parent element.** Rules like `.sidebar .item` don't apply to the copy, because it hangs from `<html>`. CSS variables defined on `:root` do work.
+- **Styles that depend on the parent element.** Rules like `.sidebar .item` don't apply to the copy, because it hangs from `<html>`. CSS variables defined on `:root` do work. Use [`mode: 'real'`](#real-elements) for those elements.
 - **`position: fixed` elements inside the app root.** While the tour runs, they move with the content instead of staying fixed. `position: sticky` elements work fine.
 - **Interactive steps with `zoom` above 1.** Popups positioned with JavaScript (dropdowns, popovers) can show up out of place. Keep `zoom: 1` for steps that open one.
 - **The tooltip and outline colors** are indigo (`#6366f1`) and can't be configured yet.

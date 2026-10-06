@@ -39,7 +39,7 @@ npm install github:cesarureno/spotlight-tour-js
 Para fijar una versión, usa un tag o un commit:
 
 ```bash
-npm install github:cesarureno/spotlight-tour-js#v0.2.1
+npm install github:cesarureno/spotlight-tour-js#v0.3.0
 ```
 
 ### Probarla localmente sin subir cambios
@@ -125,6 +125,19 @@ Compila con `npm run build` y sirve `dist/index.umd.js` junto a tu página. `dis
   const tour = new SpotlightTour.default({ steps: [/* ... */] });
   tour.start();
 </script>
+```
+
+### Elementos reales
+
+La copia sale volando de la página, así que pierde cualquier estilo que venga de sus padres: una celda con el estilo de su tabla, una opción con el estilo de su menú. Para esos, usa `mode: 'real'`. La cámara se acerca al elemento en su lugar, como en un paso interactivo, pero no hay nada que hacer: «Siguiente» está habilitado y la página no recibe clicks.
+
+```js
+{
+  target: () => [...document.querySelectorAll('th')].find(th => th.textContent.includes('Capturó')),
+  title: 'Columna nueva',
+  text: 'Muestra quién capturó el vale.',
+  mode: 'real',
+}
 ```
 
 ### Pasos interactivos
@@ -215,6 +228,8 @@ Los pasos sin `intercept` sirven para todo lo que solo lee o cambia la vista: ab
 | `timeout` | `number` | `targetTimeout` | Espera máxima solo para este paso. |
 | `onEnter` | `() => void \| Promise<void>` | — | Corre antes de buscar el elemento. Si devuelve una promesa, el tour la espera. |
 | `onLeave` | `() => void \| Promise<void>` | — | Corre al salir del paso, también cuando el tour se cierra. |
+| `mode` | `'copy' \| 'real'` | `'copy'` | `'real'` acerca la cámara al elemento en su lugar en vez de hacer volar una copia. Ver [Elementos reales](#elementos-reales). |
+| `zoom` | `number` | `1` | Con `mode: 'real'`: agranda la página sobre el elemento. |
 | `action` | `StepAction` | — | Hace el paso [interactivo](#pasos-interactivos). Entonces `cloneScale` no aplica. |
 
 ### `StepAction`
@@ -267,7 +282,7 @@ Las flechas no saltan un paso interactivo que el usuario no ha cumplido, y se ig
 ## Limitaciones conocidas
 
 - **La copia es estática.** Un `<canvas>` (por ejemplo, gráficas de Chart.js) sale en blanco. Los inputs muestran su valor inicial, no lo que el usuario escribió.
-- **Estilos que dependen del elemento padre.** Reglas como `.sidebar .item` no se aplican en la copia, porque esta cuelga de `<html>`. Las variables CSS definidas en `:root` sí funcionan.
+- **Estilos que dependen del elemento padre.** Reglas como `.sidebar .item` no se aplican en la copia, porque esta cuelga de `<html>`. Las variables CSS definidas en `:root` sí funcionan. Para esos elementos usa [`mode: 'real'`](#elementos-reales).
 - **Elementos `position: fixed` dentro de la raíz de la app.** Mientras el tour corre, se mueven junto con el contenido en lugar de quedarse fijos. Los `position: sticky` sí funcionan.
 - **Pasos interactivos con `zoom` mayor a 1.** Los popups que se posicionan con JavaScript (dropdowns, popovers) pueden aparecer fuera de lugar. Deja `zoom: 1` en los pasos que abren uno.
 - **Los colores del tooltip y del contorno** son índigo (`#6366f1`) y por ahora no se pueden configurar.
