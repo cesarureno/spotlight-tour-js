@@ -12,7 +12,8 @@ export interface SpotlightHandle {
 
 const PADDING = 8;
 
-export function createSpotlight(target: HTMLElement): SpotlightHandle {
+/** `onResize` runs when the hole changes size or place, e.g. so the tooltip can follow it. */
+export function createSpotlight(target: HTMLElement, onResize?: () => void): SpotlightHandle {
   const html = document.documentElement;
 
   const hole = document.createElement('div');
@@ -35,12 +36,16 @@ export function createSpotlight(target: HTMLElement): SpotlightHandle {
     // A target that left the DOM (e.g. a button that closes its own panel) keeps its last hole.
     if (target.isConnected) {
       const r = target.getBoundingClientRect();
-      rect = {
+      const next = {
         left: r.left - PADDING,
         top: r.top - PADDING,
         width: r.width + PADDING * 2,
         height: r.height + PADDING * 2,
       };
+      const moved = (Object.keys(next) as (keyof typeof next)[]).some(k => Math.abs(next[k] - rect[k]) > 0.5);
+      const first = rect.width === 0;
+      rect = next;
+      if (moved && !first) onResize?.();
     }
 
     const { left, top, width, height } = rect;

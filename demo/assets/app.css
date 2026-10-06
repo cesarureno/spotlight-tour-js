@@ -377,32 +377,22 @@ body {
 }
 #toast.show { opacity: 1; transform: translateY(0); }
 
-/* ── Demo switcher ─────────────────────────── */
-#demo-switcher {
+/* ── Back link ─────────────────────────────── */
+#back-link {
   position: fixed;
   bottom: 28px;
   left: 28px;
   z-index: 1000;
-  display: flex;
-  align-items: center;
-  gap: 4px;
-  padding: 4px;
+  padding: 12px 18px;
   background: #111827;
+  color: #fff;
   border-radius: 100px;
   box-shadow: 0 6px 24px rgba(0,0,0,.25);
   font-size: 13px;
   font-weight: 600;
-}
-
-#demo-switcher a {
-  color: #d1d5db;
   text-decoration: none;
-  padding: 8px 14px;
-  border-radius: 100px;
-  transition: background .15s, color .15s;
 }
-#demo-switcher a:hover { color: #fff; }
-#demo-switcher a[aria-current="page"] { background: #fff; color: #111827; }
+#back-link:hover { background: #1f2937; }
 
 /* ── Phones ────────────────────────────────── */
 @media (max-width: 760px) {
@@ -417,7 +407,7 @@ body {
   .features-grid, .pricing-grid { grid-template-columns: 1fr; }
   #cta-section { margin: 40px 16px; padding: 48px 20px; }
   #cta-section h2 { font-size: 28px; }
-  #demo-switcher { left: 16px; bottom: 16px; }
+  #back-link { left: 16px; bottom: 16px; }
   #tour-trigger { right: 16px; bottom: 76px; }
   #toast { right: 16px; bottom: 132px; }
 }

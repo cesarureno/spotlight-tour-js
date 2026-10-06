@@ -39,7 +39,7 @@ export const STYLES = `
   box-sizing: border-box;
   opacity: 0;
   transform: translateY(10px) scale(0.96);
-  transition: opacity 0.3s ease, transform 0.3s ease;
+  transition: opacity 0.3s ease, transform 0.3s ease, top 0.25s ease, left 0.25s ease;
   pointer-events: all;
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
 }

@@ -9,7 +9,7 @@ Onboarding tours with a cinematic effect. When the tour starts, the page pulls b
 - SSR-safe: it doesn't touch `window` or `document` until you call `start()`.
 - TypeScript types included.
 
-**[See the demo →](https://cesarureno.github.io/spotlight-tour-js/)** The same app with and without the library, side by side.
+**[See the demo →](https://cesarureno.github.io/spotlight-tour-js/)** Try every kind of step, take a tour of the docs page, and open a demo app.
 
 ## How it works
 
@@ -39,7 +39,7 @@ npm install github:cesarureno/spotlight-tour-js
 To pin a version, use a tag or a commit:
 
 ```bash
-npm install github:cesarureno/spotlight-tour-js#v0.2.0
+npm install github:cesarureno/spotlight-tour-js#v0.2.1
 ```
 
 ### Trying it locally without pushing changes
@@ -281,7 +281,7 @@ npm run dev     # rebuilds on save
 npm run demo    # serves the project at http://localhost:3000
 ```
 
-With `npm run demo` running, open `http://localhost:3000/demo/`. There are two pages with the same app: `without-tour.html` and `with-tour.html`. Everything the library adds is at the end of `with-tour.html`.
+With `npm run demo` running, open `http://localhost:3000/demo/`. `index.html` is the docs page, with its own tour and a card to try each kind of step. `app.html` is a sample app; everything the library adds is at the end of the file.
 
 Every push to `main` publishes the demo to GitHub Pages (`.github/workflows/pages.yml`).
 

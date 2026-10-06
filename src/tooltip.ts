@@ -81,51 +81,57 @@ export function createTooltip(config: TooltipConfig): HTMLElement {
 
   // Measure actual height before positioning so 'above' is accurate
   requestAnimationFrame(() => {
-    const tooltipH = el.offsetHeight;
-    const vw = window.innerWidth;
-    const vh = window.innerHeight;
-    const { left: rL, top: rT, width: rW, height: rH } = visualRect;
-
-    let left: number;
-    let top: number;
-
-    switch (side) {
-      case 'below':
-        left = rL + rW / 2 - TOOLTIP_WIDTH / 2;
-        top = rT + rH + GAP;
-        break;
-      case 'above':
-        left = rL + rW / 2 - TOOLTIP_WIDTH / 2;
-        top = rT - tooltipH - GAP;
-        break;
-      case 'right':
-        left = rL + rW + GAP;
-        top = rT + rH / 2 - tooltipH / 2;
-        break;
-      case 'left':
-        left = rL - TOOLTIP_WIDTH - GAP;
-        top = rT + rH / 2 - tooltipH / 2;
-        break;
-    }
-
-    // Flip to the other side when the requested one doesn't fit but the other does.
-    if (side === 'below' && top + tooltipH > vh - EDGE_PAD && rT - tooltipH - GAP >= EDGE_PAD) {
-      top = rT - tooltipH - GAP;
-    } else if (side === 'above' && top < EDGE_PAD && rT + rH + GAP + tooltipH <= vh - EDGE_PAD) {
-      top = rT + rH + GAP;
-    }
-
-    left = Math.max(EDGE_PAD, Math.min(vw - TOOLTIP_WIDTH - EDGE_PAD, left));
-    top = Math.max(EDGE_PAD, Math.min(vh - tooltipH - EDGE_PAD, top));
-
-    el.style.left = `${left}px`;
-    el.style.top = `${top}px`;
+    positionTooltip(el, visualRect, side);
     el.style.visibility = '';
-
     requestAnimationFrame(() => el.classList.add('st-visible'));
   });
 
   return el;
+}
+
+type Rect = { left: number; top: number; width: number; height: number };
+
+/** Places the tooltip next to `rect`. Also used to follow an element that changes size. */
+export function positionTooltip(el: HTMLElement, rect: Rect, side: TooltipSide): void {
+  const tooltipH = el.offsetHeight;
+  const vw = window.innerWidth;
+  const vh = window.innerHeight;
+  const { left: rL, top: rT, width: rW, height: rH } = rect;
+
+  let left: number;
+  let top: number;
+
+  switch (side) {
+    case 'below':
+      left = rL + rW / 2 - TOOLTIP_WIDTH / 2;
+      top = rT + rH + GAP;
+      break;
+    case 'above':
+      left = rL + rW / 2 - TOOLTIP_WIDTH / 2;
+      top = rT - tooltipH - GAP;
+      break;
+    case 'right':
+      left = rL + rW + GAP;
+      top = rT + rH / 2 - tooltipH / 2;
+      break;
+    case 'left':
+      left = rL - TOOLTIP_WIDTH - GAP;
+      top = rT + rH / 2 - tooltipH / 2;
+      break;
+  }
+
+  // Flip to the other side when the requested one doesn't fit but the other does.
+  if (side === 'below' && top + tooltipH > vh - EDGE_PAD && rT - tooltipH - GAP >= EDGE_PAD) {
+    top = rT - tooltipH - GAP;
+  } else if (side === 'above' && top < EDGE_PAD && rT + rH + GAP + tooltipH <= vh - EDGE_PAD) {
+    top = rT + rH + GAP;
+  }
+
+  left = Math.max(EDGE_PAD, Math.min(vw - TOOLTIP_WIDTH - EDGE_PAD, left));
+  top = Math.max(EDGE_PAD, Math.min(vh - tooltipH - EDGE_PAD, top));
+
+  el.style.left = `${left}px`;
+  el.style.top = `${top}px`;
 }
 
 /** Interactive steps: the user did it. Enables "Next"/"Done" and swaps the hint for `text`. */

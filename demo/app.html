@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Acme Cloud — without spotlight-tour</title>
+  <title>Acme Cloud — spotlight-tour demo</title>
   <link rel="stylesheet" href="assets/app.css">
 </head>
 <body>
@@ -164,11 +164,99 @@
   <!-- The app's own behavior: it's the same with or without the tour. -->
   <script src="assets/app.js"></script>
 
-  <!-- ── Demo switcher (not part of the app) ─── -->
-  <nav id="demo-switcher" aria-label="Demos">
-    <a href="./">← All demos</a>
-    <a href="without-tour.html" aria-current="page">Without tour</a>
-    <a href="with-tour.html">With tour</a>
-  </nav>
+  <!-- ── Back to the docs (not part of the app) ── -->
+  <a id="back-link" href="./">← spotlight-tour docs</a>
+
+  <!-- ════════════════════════════════════════════════════════════════════
+       Everything below is what installing spotlight-tour adds to the page.
+       ════════════════════════════════════════════════════════════════════ -->
+
+  <button id="tour-trigger" title="Start the product tour">
+    <div class="tour-dot"></div>
+    Start tour
+  </button>
+
+  <div id="toast">✓ Tour finished</div>
+
+  <!-- UMD build from `npm run build`. With a bundler: import SpotlightTour from 'spotlight-tour' -->
+  <script src="../dist/index.umd.js"></script>
+  <script>
+    // The UMD build exposes the class on .default
+    const tour = new SpotlightTour.default({
+      zoomOutScale:   0.58,
+      overlayOpacity: 0.68,
+
+      onEnd() {
+        const toast = document.getElementById('toast');
+        toast.classList.add('show');
+        setTimeout(() => toast.classList.remove('show'), 2800);
+      },
+
+      steps: [
+        {
+          target:      '#main-nav',
+          title:       'Main navigation',
+          text:        'Every section is one click away from here: product, features, pricing, and docs.',
+          cloneScale:  1.7,
+          tooltipSide: 'below',
+        },
+        {
+          target:      '#card-automation',
+          title:       'No-code automation',
+          text:        'The flagship capability, as icon + title + short description. Scannable at a glance.',
+          cloneScale:  2.6,
+          tooltipSide: 'right',
+        },
+        {
+          target:      '#pricing',
+          title:       'Transparent pricing',
+          text:        'Three simple plans remove the "how much will this cost me?" friction before sign-up.',
+          cloneScale:  1.2,
+          tooltipSide: 'above',
+        },
+
+        // ── Interactive steps: the user uses the real element ────────────────
+
+        {
+          // A real click: the app's own handler runs and the prices change.
+          target: '#billing-toggle',
+          title:  'Try yearly billing',
+          text:   'This is the real switch, not a copy. Go ahead and use it.',
+          action: {
+            hint:  'Switch to Yearly',
+            until: () => document.querySelector('[data-period="yearly"]').getAttribute('aria-pressed') === 'true',
+          },
+        },
+        {
+          target:      '.pricing-card.featured',
+          title:       'Prices updated',
+          text:        'The switch you just used changed the Pro price. That was the app, not the tour.',
+          cloneScale:  1.5,
+          tooltipSide: 'right',
+        },
+        {
+          // Typing is harmless; intercept blocks Enter so the form can't be sent.
+          target: '#signup-email',
+          title:  'Your work email',
+          text:   'Type any address. Nothing is sent: this step blocks Enter and the form submit.',
+          action: { type: 'input', intercept: true, zoom: 1.4 },
+        },
+        {
+          // intercept: the click counts, but the app's submit handler never runs.
+          target: '#cta-btn',
+          title:  'Create your account',
+          text:   'Click it. The tour counts the click but stops it before the app sees it, so no account is created.',
+          action: { type: 'click', intercept: true },
+        },
+      ],
+    });
+
+    document.getElementById('tour-trigger').addEventListener('click', () => tour.start());
+
+    // Coming from the demos page, play it right away.
+    if (new URLSearchParams(location.search).has('autostart')) {
+      setTimeout(() => tour.start(), 700);
+    }
+  </script>
 </body>
 </html>

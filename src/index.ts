@@ -2,7 +2,7 @@ import type { ActionType, StepAction, StepTarget, TourLabels, TourOptions, TourS
 import { injectStyles } from './styles';
 import { createOverlay, removeOverlay } from './overlay';
 import { createFlyingClone, CloneHandle } from './clone';
-import { createTooltip, markActionDone } from './tooltip';
+import { createTooltip, markActionDone, positionTooltip } from './tooltip';
 import { createStage, Stage } from './stage';
 import { createSpotlight, SpotlightHandle } from './spotlight';
 import { actionType, watchAction } from './action';
@@ -240,7 +240,12 @@ export default class SpotlightTour {
     await delay(CAMERA_MS);
     if (!alive()) return;
 
-    this.spotlight = createSpotlight(target);
+    const side = step.tooltipSide ?? 'below';
+    // The tooltip follows the hole when using the element changes its size (a panel
+    // that opens, a field that grows) so it never ends up covering it.
+    this.spotlight = createSpotlight(target, () => {
+      if (this.tooltip) positionTooltip(this.tooltip, this.spotlight!.rect(), side);
+    });
     this.stage!.setPointer(true);
     this.awaitingAction = true;
 
@@ -248,7 +253,7 @@ export default class SpotlightTour {
     const tooltip = createTooltip({
       title: step.title,
       text: step.text,
-      side: step.tooltipSide ?? 'below',
+      side,
       stepIndex: index,
       totalSteps: this.steps.length,
       labels: this.labels,
